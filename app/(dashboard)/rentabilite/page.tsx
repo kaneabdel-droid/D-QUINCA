@@ -1,0 +1,150 @@
+import { createClient } from '@/utils/supabase/server'
+import { requireAdminEntreprise } from '@/lib/auth/getCurrentUserContext'
+import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+
+type RentabiliteRow = { ca: number; cout: number; marge_brute: number; charges: number; resultat_net: number }
+type ArticleRow = { article_id: string; designation: string; quantite: number; ca: number; cout: number; marge: number }
+
+export default async function RentabilitePage() {
+  const context = await requireAdminEntreprise()
+  const supabase = await createClient()
+
+  const dateFin = new Date()
+  const dateDebut = new Date()
+  dateDebut.setDate(dateDebut.getDate() - 30)
+  const p_date_debut = dateDebut.toISOString().slice(0, 10)
+  const p_date_fin = dateFin.toISOString().slice(0, 10)
+
+  const { data: magasins } = await supabase
+    .from('magasins')
+    .select('id, nom')
+    .eq('entreprise_id', context.entrepriseId)
+    .order('nom')
+
+  const totaux: RentabiliteRow = { ca: 0, cout: 0, marge_brute: 0, charges: 0, resultat_net: 0 }
+  const parMagasin: (RentabiliteRow & { nom: string })[] = []
+  const articlesMap = new Map<string, ArticleRow>()
+
+  for (const magasin of magasins ?? []) {
+    const { data: rentabilite } = await supabase
+      .rpc('rentabilite_periode', { p_magasin_id: magasin.id, p_date_debut, p_date_fin })
+      .single()
+
+    const r = (rentabilite ?? { ca: 0, cout: 0, marge_brute: 0, charges: 0, resultat_net: 0 }) as RentabiliteRow
+    parMagasin.push({ nom: magasin.nom, ...r })
+    totaux.ca += Number(r.ca)
+    totaux.cout += Number(r.cout)
+    totaux.marge_brute += Number(r.marge_brute)
+    totaux.charges += Number(r.charges)
+    totaux.resultat_net += Number(r.resultat_net)
+
+    const { data: articles } = await supabase.rpc('rentabilite_par_article', {
+      p_magasin_id: magasin.id,
+      p_date_debut,
+      p_date_fin,
+    })
+    for (const a of (articles ?? []) as ArticleRow[]) {
+      const existant = articlesMap.get(a.article_id)
+      if (existant) {
+        existant.quantite += Number(a.quantite)
+        existant.ca += Number(a.ca)
+        existant.cout += Number(a.cout)
+        existant.marge += Number(a.marge)
+      } else {
+        articlesMap.set(a.article_id, { ...a, quantite: Number(a.quantite), ca: Number(a.ca), cout: Number(a.cout), marge: Number(a.marge) })
+      }
+    }
+  }
+
+  const topArticles = Array.from(articlesMap.values()).sort((a, b) => b.marge - a.marge).slice(0, 10)
+
+  const cards = [
+    { label: "Chiffre d'affaires", value: totaux.ca, icon: DollarSign, color: 'text-primary' },
+    { label: 'Marge brute', value: totaux.marge_brute, icon: TrendingUp, color: 'text-success' },
+    { label: 'Charges', value: totaux.charges, icon: TrendingDown, color: 'text-danger' },
+    { label: 'Résultat net', value: totaux.resultat_net, icon: Wallet, color: totaux.resultat_net >= 0 ? 'text-success' : 'text-danger' },
+  ]
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold font-heading text-foreground mb-2">Rentabilité</h1>
+      <p className="text-sm text-foreground-muted mb-6">{context.entrepriseNom} — 30 derniers jours</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {cards.map(({ label, value, icon: Icon, color }) => (
+          <div key={label} className="overflow-hidden rounded-xl bg-surface p-6 shadow-sm border border-surface-border">
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-background p-2.5 shrink-0">
+                <Icon className={`h-5 w-5 ${color}`} />
+              </div>
+              <dt className="text-sm font-medium text-foreground-muted leading-tight pt-1">{label}</dt>
+            </div>
+            <dd className="mt-4 text-2xl font-bold tracking-tight text-foreground">{value.toLocaleString('fr-FR')}</dd>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="text-lg font-semibold text-foreground mb-4">Par magasin</h2>
+      <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface mb-10">
+        <table className="min-w-full divide-y divide-surface-border">
+          <thead className="bg-background/50">
+            <tr>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Magasin</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">CA</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Marge brute</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Charges</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Résultat net</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-surface-border bg-surface">
+            {parMagasin.map((m) => (
+              <tr key={m.nom}>
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-foreground sm:pl-6">{m.nom}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(m.ca).toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(m.marge_brute).toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground-muted">{Number(m.charges).toLocaleString('fr-FR')}</td>
+                <td className={`px-3 py-4 text-sm text-right font-medium ${Number(m.resultat_net) >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {Number(m.resultat_net).toLocaleString('fr-FR')}
+                </td>
+              </tr>
+            ))}
+            {parMagasin.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">Aucun magasin</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="text-lg font-semibold text-foreground mb-4">Top 10 articles par marge</h2>
+      <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+        <table className="min-w-full divide-y divide-surface-border">
+          <thead className="bg-background/50">
+            <tr>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Article</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Qté vendue</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">CA</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Marge</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-surface-border bg-surface">
+            {topArticles.map((a) => (
+              <tr key={a.article_id}>
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-foreground sm:pl-6">{a.designation}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground-muted">{a.quantite.toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground">{a.ca.toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-right text-success font-medium">{a.marge.toLocaleString('fr-FR')}</td>
+              </tr>
+            ))}
+            {topArticles.length === 0 && (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-sm text-foreground-muted">Aucune vente sur la période</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
