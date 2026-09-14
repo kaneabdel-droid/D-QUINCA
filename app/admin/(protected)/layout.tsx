@@ -1,16 +1,24 @@
 import { redirect } from 'next/navigation'
 import { LayoutDashboard, Building2, LogOut } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminIdentityClient } from '@/utils/supabase/admin-identity'
 import { isAdminEmail } from '@/lib/admin/auth'
 
 // Défense en profondeur : le middleware bloque déjà /admin aux non-admins, mais on
 // re-vérifie ici (même pattern que (dashboard)/layout.tsx le fera pour les rôles).
+// Double vérification comme dans le middleware : identité admin partagée (SSO
+// inter-produits) d'abord, session admin locale à D-QUINCA en secours.
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user: localUser } } = await supabase.auth.getUser()
 
-  if (!isAdminEmail(user?.email)) {
-    redirect(user ? '/dashboard' : '/admin/login')
+  const adminIdentitySupabase = await createAdminIdentityClient()
+  const { data: { user: sharedUser } } = await adminIdentitySupabase.auth.getUser()
+
+  const user = isAdminEmail(sharedUser?.email) ? sharedUser : localUser
+
+  if (!isAdminEmail(sharedUser?.email) && !isAdminEmail(localUser?.email)) {
+    redirect(localUser ? '/dashboard' : '/admin/login')
   }
 
   // Nav réduite à "Entreprises" : pas de Paiements/Config, la facturation SaaS
@@ -40,7 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
         <div className="p-4 border-t border-surface-border">
-          <a href="/logout" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-foreground-muted hover:bg-surface transition-colors">
+          <a href="/admin/logout" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-foreground-muted hover:bg-surface transition-colors">
             <LogOut className="w-4 h-4" />
             Déconnexion
           </a>

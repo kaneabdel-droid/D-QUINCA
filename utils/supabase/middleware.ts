@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAdminEmail } from '@/lib/admin/auth'
+import { createAdminIdentityMiddlewareClient } from '@/utils/supabase/admin-identity'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -47,13 +48,30 @@ export async function updateSession(request: NextRequest) {
   // Espace admin plateforme : réservé aux emails listés dans ADMIN_EMAILS. Traité
   // avant la redirection générique ci-dessous pour qu'un visiteur non connecté sur
   // /admin/* atterrisse sur /admin/login, pas sur /login (compte entreprise/magasin).
+  //
+  // SSO admin inter-produits DembaSolution : on vérifie d'abord la session
+  // partagée (cookie à domaine .dembasolution.com, cf. admin-identity.ts) posée
+  // par une connexion sur SIGGIE ; si absente, on retombe sur la session admin
+  // locale à D-QUINCA (compat, /admin/login local reste fonctionnel) ; si aucune
+  // des deux, on renvoie vers la connexion centralisée sur SIGGIE avec un retour.
   if (pathname.startsWith('/admin')) {
-    if (!isAdminEmail(user?.email)) {
+    const adminIdentitySupabase = createAdminIdentityMiddlewareClient(request, supabaseResponse)
+    const { data: { user: sharedAdminUser } } = await adminIdentitySupabase.auth.getUser()
+
+    if (isAdminEmail(sharedAdminUser?.email) || isAdminEmail(user?.email)) {
+      return supabaseResponse
+    }
+
+    if (user) {
       const url = request.nextUrl.clone()
-      url.pathname = user ? '/dashboard' : '/admin/login'
+      url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
-    return supabaseResponse
+
+    const returnTo = `https://d-quinca.dembasolution.com${pathname}${request.nextUrl.search}`
+    return NextResponse.redirect(
+      `https://www.dembasolution.com/admin/login?next=${encodeURIComponent(returnTo)}`
+    )
   }
 
   // Pas d'auto-inscription côté D-QUINCA (tous les comptes sont créés par l'admin
