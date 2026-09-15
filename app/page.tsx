@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
       <h1 className="font-heading text-3xl font-bold text-foreground">D-QUINCA</h1>
       <p className="mt-2 max-w-md text-foreground-muted">
-        La solution de gestion pour quincailleries en Afrique de l&apos;Ouest. Suivez vos stocks, vos ventes et vos
+        La solution de gestion pour quincailleries en Afrique. Suivez vos stocks, vos ventes et vos
         magasins en toute simplicité.
       </p>
       <div className="mt-6 flex items-center gap-4">
