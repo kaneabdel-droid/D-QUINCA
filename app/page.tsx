@@ -15,9 +15,9 @@ export default function HomePage() {
         >
           S&apos;abonner
         </Link>
-        <a href="#fonctionnalites" className="text-sm font-semibold text-foreground-muted hover:text-primary">
+        <Link href="/decouvrir-dquinca" className="text-sm font-semibold text-foreground-muted hover:text-primary">
           Découvrir →
-        </a>
+        </Link>
       </div>
 
       <div id="fonctionnalites" className="mt-20 grid w-full max-w-3xl gap-6 text-left sm:grid-cols-3">
