@@ -81,14 +81,18 @@ export async function updateSession(request: NextRequest) {
 
   // Pas d'auto-inscription côté D-QUINCA (tous les comptes sont créés par l'admin
   // système, cf. §4 du plan) : ni /signup ni verrouillage d'essai à gérer ici,
-  // seulement les routes publiques de connexion/récupération de mot de passe.
+  // seulement les routes publiques de connexion/récupération de mot de passe,
+  // la page démo publique, et /api (webhooks/cron providers — jamais de session
+  // Supabase côté appelant, authentifiés par leur propre secret dans le handler).
   if (
     !user &&
     pathname !== '/' &&
     !pathname.startsWith('/login') &&
     !pathname.startsWith('/forgot-password') &&
     !pathname.startsWith('/update-password') &&
-    !pathname.startsWith('/auth')
+    !pathname.startsWith('/auth') &&
+    !pathname.startsWith('/decouvrir-dquinca') &&
+    !pathname.startsWith('/api')
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
