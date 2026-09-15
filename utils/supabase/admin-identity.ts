@@ -4,6 +4,7 @@ import { cache } from 'react'
 import type { NextRequest, NextResponse } from 'next/server'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/server'
+import { withRetry } from '@/utils/supabase/retry'
 
 // Client Supabase dédié à l'identité admin partagée entre produits DembaSolution
 // (SIGGIE, D-QUINCA, ...) — projet Supabase de SIGGIE (source d'identité admin
@@ -56,9 +57,11 @@ export async function createAdminIdentityClient() {
 // aussi capturé ici plutôt que de remonter en exception non gérée.
 export const getSharedAdminUser = cache(async (): Promise<User | null> => {
   try {
-    const supabase = await createAdminIdentityClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
+    return await withRetry(async () => {
+      const supabase = await createAdminIdentityClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      return user
+    })
   } catch {
     return null
   }
@@ -68,9 +71,11 @@ export const getSharedAdminUser = cache(async (): Promise<User | null> => {
 // admin appelle les deux : identité partagée d'abord, repli local ensuite).
 export const getLocalUser = cache(async (): Promise<User | null> => {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
+    return await withRetry(async () => {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      return user
+    })
   } catch {
     return null
   }

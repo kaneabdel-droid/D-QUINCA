@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/utils/supabase/admin'
 import { createClient } from '@/utils/supabase/server'
+import { withRetry } from '@/utils/supabase/retry'
 import { redirect } from 'next/navigation'
 
 // Comptes de démonstration publics (entreprise SUNUQuinca, cf.
@@ -23,7 +24,9 @@ export async function loginDemo(formData: FormData) {
   if (!email) redirect('/decouvrir-dquinca?demo_error=1')
 
   const admin = createAdminClient()
-  const { data, error } = await admin.auth.admin.generateLink({ type: 'magiclink', email })
+  const { data, error } = await withRetry(() =>
+    admin.auth.admin.generateLink({ type: 'magiclink', email })
+  ).catch((e) => ({ data: null, error: e }))
 
   if (error || !data?.properties?.hashed_token) {
     console.error('Erreur génération lien démo:', error)
@@ -31,10 +34,12 @@ export async function loginDemo(formData: FormData) {
   }
 
   const supabase = await createClient()
-  const { error: verifyError } = await supabase.auth.verifyOtp({
-    token_hash: data.properties.hashed_token,
-    type: 'magiclink',
-  })
+  const { error: verifyError } = await withRetry(() =>
+    supabase.auth.verifyOtp({
+      token_hash: data.properties.hashed_token,
+      type: 'magiclink',
+    })
+  ).catch((e) => ({ error: e }))
 
   if (verifyError) {
     console.error('Erreur connexion démo:', verifyError)

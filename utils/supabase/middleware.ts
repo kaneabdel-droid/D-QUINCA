@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAdminEmail } from '@/lib/admin/auth'
 import { createAdminIdentityMiddlewareClient } from '@/utils/supabase/admin-identity'
+import { withRetry } from '@/utils/supabase/retry'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -56,12 +57,14 @@ export async function updateSession(request: NextRequest) {
   // des deux, on renvoie vers la connexion centralisée sur SIGGIE avec un retour.
   if (pathname.startsWith('/admin')) {
     // Un pépin réseau transitoire sur le projet Supabase partagé ne doit pas faire
-    // planter la requête ni bloquer le repli local — on le traite comme "pas de
-    // session partagée" plutôt que de laisser l'exception remonter.
-    const sharedAdminUser = await createAdminIdentityMiddlewareClient(request, supabaseResponse)
-      .auth.getUser()
-      .then(({ data }) => data.user)
-      .catch(() => null)
+    // planter la requête ni bloquer le repli local — on retente une fois (voir
+    // utils/supabase/retry.ts) avant de traiter ça comme "pas de session partagée"
+    // plutôt que de laisser l'exception remonter.
+    const sharedAdminUser = await withRetry(() =>
+      createAdminIdentityMiddlewareClient(request, supabaseResponse)
+        .auth.getUser()
+        .then(({ data }) => data.user)
+    ).catch(() => null)
 
     if (isAdminEmail(sharedAdminUser?.email) || isAdminEmail(user?.email)) {
       return supabaseResponse
