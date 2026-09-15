@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/utils/supabase/admin'
 import CreerEntrepriseButton from './CreerEntrepriseButton'
+import { PALIERS, type PalierCode } from '@/lib/abonnements/paliers'
 
 export default async function AdminEntreprisesPage() {
   const supabase = createAdminClient()
 
   const { data: entreprises } = await supabase
     .from('entreprises')
-    .select('id, nom, devise, statut, created_at')
+    .select('id, nom, devise, statut, palier, abonnement_expire_le, created_at')
     .order('created_at', { ascending: false })
 
   const { data: magasins } = await supabase.from('magasins').select('id, entreprise_id')
@@ -36,6 +37,7 @@ export default async function AdminEntreprisesPage() {
               <th className="px-4 py-3 font-medium">Nom</th>
               <th className="px-4 py-3 font-medium">Magasins</th>
               <th className="px-4 py-3 font-medium">Utilisateurs</th>
+              <th className="px-4 py-3 font-medium">Palier</th>
               <th className="px-4 py-3 font-medium">Devise</th>
               <th className="px-4 py-3 font-medium">Statut</th>
               <th className="px-4 py-3 font-medium">Créée le</th>
@@ -51,6 +53,12 @@ export default async function AdminEntreprisesPage() {
                 </td>
                 <td className="px-4 py-3 text-foreground-muted">{magasinsParEntreprise.get(entreprise.id) ?? 0}</td>
                 <td className="px-4 py-3 text-foreground-muted">{utilisateursParEntreprise.get(entreprise.id) ?? 0}</td>
+                <td className="px-4 py-3">
+                  <div>{PALIERS[entreprise.palier as PalierCode]?.nom ?? entreprise.palier}</div>
+                  <div className="text-xs text-foreground-muted">
+                    {entreprise.abonnement_expire_le ? `jusqu'au ${new Date(entreprise.abonnement_expire_le).toLocaleDateString('fr-FR')}` : 'non payé'}
+                  </div>
+                </td>
                 <td className="px-4 py-3">{entreprise.devise}</td>
                 <td className="px-4 py-3">
                   {entreprise.statut === 'suspendu' ? (
@@ -65,7 +73,7 @@ export default async function AdminEntreprisesPage() {
               </tr>
             ))}
             {(entreprises ?? []).length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-6 text-center text-foreground-muted">Aucune entreprise</td></tr>
+              <tr><td colSpan={7} className="px-4 py-6 text-center text-foreground-muted">Aucune entreprise</td></tr>
             )}
           </tbody>
         </table>

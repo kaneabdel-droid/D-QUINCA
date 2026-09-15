@@ -7,6 +7,7 @@ export type UserContext = {
   email: string | null
   entrepriseId: string
   entrepriseNom: string
+  entrepriseStatut: 'actif' | 'suspendu'
   role: 'admin_entreprise' | 'gerant'
   magasinId: string | null
   magasinNom: string | null
@@ -24,7 +25,7 @@ export const getCurrentUserContext = cache(async (): Promise<UserContext> => {
 
   const { data } = await supabase
     .from('utilisateurs')
-    .select('entreprise_id, role, magasin_id, entreprises(nom), magasins(nom)')
+    .select('entreprise_id, role, magasin_id, entreprises(nom, statut), magasins(nom)')
     .eq('id', user.id)
     .single()
 
@@ -38,6 +39,7 @@ export const getCurrentUserContext = cache(async (): Promise<UserContext> => {
     email: user.email ?? null,
     entrepriseId: data.entreprise_id,
     entrepriseNom: entreprise?.nom ?? '',
+    entrepriseStatut: entreprise?.statut ?? 'actif',
     role: data.role,
     magasinId: data.magasin_id,
     magasinNom: magasin?.nom ?? null,

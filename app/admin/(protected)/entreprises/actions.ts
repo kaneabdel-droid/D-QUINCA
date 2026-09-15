@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { getSharedAdminUser, getLocalUser } from '@/utils/supabase/admin-identity'
 import { isAdminEmail } from '@/lib/admin/auth'
+import { PALIERS, type PalierCode } from '@/lib/abonnements/paliers'
 
 type ActionResult = { success?: true; error?: string }
 
@@ -58,6 +59,17 @@ export async function creerMagasin(entrepriseId: string, nom: string, adresse: s
   if (!nom.trim()) return { error: 'Le nom du magasin est requis' }
 
   const supabase = createAdminClient()
+
+  // Limite de magasins par palier d'abonnement — bloquant : force la mise à
+  // niveau plutôt que de laisser un client dépasser ce pour quoi il paie (cf.
+  // lib/abonnements/paliers.ts, seule source de vérité pour magasinsMax).
+  const { data: entreprise } = await supabase.from('entreprises').select('palier').eq('id', entrepriseId).single()
+  const palier = (entreprise?.palier ?? 'standard') as PalierCode
+  const { count } = await supabase.from('magasins').select('id', { count: 'exact', head: true }).eq('entreprise_id', entrepriseId).eq('statut', 'actif')
+  if ((count ?? 0) >= PALIERS[palier].magasinsMax) {
+    return { error: `Limite atteinte : le palier ${PALIERS[palier].nom} autorise au maximum ${PALIERS[palier].magasinsMax} magasin(s). Passez cette entreprise à un palier supérieur pour en ajouter.` }
+  }
+
   const { error } = await supabase.from('magasins').insert({
     entreprise_id: entrepriseId,
     nom: nom.trim(),

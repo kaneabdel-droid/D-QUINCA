@@ -18,6 +18,7 @@ import {
   Receipt,
   BarChart3,
   TrendingUp,
+  CreditCard,
   Menu,
   X,
   LogOut,
@@ -48,6 +49,7 @@ const navAdminEntreprise = [
   { key: 'dashboard', href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { key: 'comparatif', href: '/comparatif', label: 'Comparatif magasins', icon: BarChart3 },
   { key: 'rentabilite', href: '/rentabilite', label: 'Rentabilité', icon: TrendingUp },
+  { key: 'abonnement', href: '/abonnement', label: 'Abonnement', icon: CreditCard },
 ]
 
 export default function ClientLayout({

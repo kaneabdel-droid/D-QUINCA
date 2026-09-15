@@ -8,6 +8,7 @@ import MagasinRow from './MagasinRow'
 import AjouterUtilisateurButton from './AjouterUtilisateurButton'
 import UtilisateurRow from './UtilisateurRow'
 import SupprimerEntrepriseButton from './SupprimerEntrepriseButton'
+import { PALIERS, type PalierCode } from '@/lib/abonnements/paliers'
 
 export default async function AdminEntrepriseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -15,11 +16,13 @@ export default async function AdminEntrepriseDetailPage({ params }: { params: Pr
 
   const { data: entreprise } = await supabase
     .from('entreprises')
-    .select('id, nom, adresse, telephone, devise, statut, created_at')
+    .select('id, nom, adresse, telephone, devise, statut, palier, abonnement_expire_le, created_at')
     .eq('id', id)
     .maybeSingle()
 
   if (!entreprise) notFound()
+
+  const palierInfo = PALIERS[entreprise.palier as PalierCode]
 
   const { data: magasins } = await supabase
     .from('magasins')
@@ -54,13 +57,15 @@ export default async function AdminEntrepriseDetailPage({ params }: { params: Pr
             <div className="flex justify-between"><dt className="text-foreground-muted">Devise</dt><dd className="font-medium">{entreprise.devise}</dd></div>
             <div className="flex justify-between"><dt className="text-foreground-muted">Adresse</dt><dd className="text-right">{entreprise.adresse || '-'}</dd></div>
             <div className="flex justify-between"><dt className="text-foreground-muted">Téléphone</dt><dd>{entreprise.telephone || '-'}</dd></div>
+            <div className="flex justify-between"><dt className="text-foreground-muted">Palier</dt><dd className="font-medium">{palierInfo?.nom ?? entreprise.palier} ({palierInfo?.magasinsMax} magasin{palierInfo && palierInfo.magasinsMax > 1 ? 's' : ''} max)</dd></div>
+            <div className="flex justify-between"><dt className="text-foreground-muted">Abonnement</dt><dd>{entreprise.abonnement_expire_le ? `jusqu'au ${new Date(entreprise.abonnement_expire_le).toLocaleDateString('fr-FR')}` : 'non payé'}</dd></div>
             <div className="flex justify-between"><dt className="text-foreground-muted">Créée le</dt><dd>{entreprise.created_at ? new Date(entreprise.created_at).toLocaleDateString('fr-FR') : '-'}</dd></div>
           </dl>
         </div>
 
         <div className="bg-background rounded-xl p-5 border border-surface-border">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h2 className="font-semibold">Magasins</h2>
+            <h2 className="font-semibold">Magasins ({(magasins ?? []).filter((m) => m.statut === 'actif').length}/{palierInfo?.magasinsMax ?? '-'})</h2>
             <AjouterMagasinButton entrepriseId={entreprise.id} />
           </div>
           <ul className="text-sm divide-y divide-surface-border">
