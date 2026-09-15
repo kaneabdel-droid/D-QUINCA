@@ -1,23 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
-import { createAdminIdentityClient } from '@/utils/supabase/admin-identity'
+import { getSharedAdminUser, getLocalUser } from '@/utils/supabase/admin-identity'
 import { isAdminEmail } from '@/lib/admin/auth'
 
 type ActionResult = { success?: true; error?: string }
 
 // Identité admin partagée (SSO inter-produits) d'abord, session admin locale à
 // D-QUINCA en secours — même double vérification que middleware.ts et layout.tsx.
+// Les deux helpers sont mémoïsés par requête et lancés en parallèle : sans ça,
+// chaque action admin payait jusqu'à deux aller-retours réseau séquentiels rien
+// que pour l'autorisation, avant même d'exécuter l'écriture demandée.
 async function checkAdmin(): Promise<string | null> {
-  const adminIdentitySupabase = await createAdminIdentityClient()
-  const { data: { user: sharedUser } } = await adminIdentitySupabase.auth.getUser()
-  if (isAdminEmail(sharedUser?.email)) return null
-
-  const supabase = await createClient()
-  const { data: { user: localUser } } = await supabase.auth.getUser()
-  return isAdminEmail(localUser?.email) ? null : 'Non autorisé'
+  const [sharedUser, localUser] = await Promise.all([getSharedAdminUser(), getLocalUser()])
+  return isAdminEmail(sharedUser?.email) || isAdminEmail(localUser?.email) ? null : 'Non autorisé'
 }
 
 // Bannissement long (10 ans) plutôt qu'un vrai champ "désactivé" — même mécanisme

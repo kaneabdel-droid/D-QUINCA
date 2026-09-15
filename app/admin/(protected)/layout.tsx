@@ -1,19 +1,16 @@
 import { redirect } from 'next/navigation'
 import { LayoutDashboard, Building2, LogOut } from 'lucide-react'
-import { createClient } from '@/utils/supabase/server'
-import { createAdminIdentityClient } from '@/utils/supabase/admin-identity'
+import { getSharedAdminUser, getLocalUser } from '@/utils/supabase/admin-identity'
 import { isAdminEmail } from '@/lib/admin/auth'
 
 // Défense en profondeur : le middleware bloque déjà /admin aux non-admins, mais on
 // re-vérifie ici (même pattern que (dashboard)/layout.tsx le fera pour les rôles).
 // Double vérification comme dans le middleware : identité admin partagée (SSO
-// inter-produits) d'abord, session admin locale à D-QUINCA en secours.
+// inter-produits) d'abord, session admin locale à D-QUINCA en secours. Les deux
+// helpers sont mémoïsés par requête (cache() de React) et lancés en parallèle,
+// pour ne pas payer deux aller-retours réseau séquentiels à chaque navigation.
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user: localUser } } = await supabase.auth.getUser()
-
-  const adminIdentitySupabase = await createAdminIdentityClient()
-  const { data: { user: sharedUser } } = await adminIdentitySupabase.auth.getUser()
+  const [sharedUser, localUser] = await Promise.all([getSharedAdminUser(), getLocalUser()])
 
   const user = isAdminEmail(sharedUser?.email) ? sharedUser : localUser
 

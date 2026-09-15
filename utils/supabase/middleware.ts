@@ -55,8 +55,13 @@ export async function updateSession(request: NextRequest) {
   // locale à D-QUINCA (compat, /admin/login local reste fonctionnel) ; si aucune
   // des deux, on renvoie vers la connexion centralisée sur SIGGIE avec un retour.
   if (pathname.startsWith('/admin')) {
-    const adminIdentitySupabase = createAdminIdentityMiddlewareClient(request, supabaseResponse)
-    const { data: { user: sharedAdminUser } } = await adminIdentitySupabase.auth.getUser()
+    // Un pépin réseau transitoire sur le projet Supabase partagé ne doit pas faire
+    // planter la requête ni bloquer le repli local — on le traite comme "pas de
+    // session partagée" plutôt que de laisser l'exception remonter.
+    const sharedAdminUser = await createAdminIdentityMiddlewareClient(request, supabaseResponse)
+      .auth.getUser()
+      .then(({ data }) => data.user)
+      .catch(() => null)
 
     if (isAdminEmail(sharedAdminUser?.email) || isAdminEmail(user?.email)) {
       return supabaseResponse
