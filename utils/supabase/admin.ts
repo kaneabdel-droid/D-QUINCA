@@ -20,8 +20,23 @@ export function createAdminClient() {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY manquant : requis pour les opérations admin (création de comptes, entreprises)')
   }
 
+  // TEMPORAIRE, diagnostic uniquement — @supabase/auth-js ne garde que
+  // `error.message` de ce que `fetch` lève et jette le `.cause` d'origine
+  // (voir node_modules/@supabase/auth-js/dist/main/lib/fetch.js:130), donc la
+  // vraie cause réseau (code, errno...) était invisible même en capturant
+  // l'erreur côté appelant. On l'injecte dans le message pour la récupérer.
+  const diagnosticFetch: typeof fetch = async (...args) => {
+    try {
+      return await (undiciFetch as unknown as typeof fetch)(...args)
+    } catch (e) {
+      const cause = (e as { cause?: unknown })?.cause as { code?: string; message?: string; errno?: unknown } | undefined
+      const detail = JSON.stringify({ code: cause?.code, causeMessage: cause?.message, errno: cause?.errno })
+      throw new Error(`fetch failed | ${detail}`)
+    }
+  }
+
   return createSupabaseClient(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
-    global: { fetch: undiciFetch as unknown as typeof fetch },
+    global: { fetch: diagnosticFetch },
   })
 }
