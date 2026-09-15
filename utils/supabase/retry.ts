@@ -35,6 +35,11 @@ export async function withRetryResult<R extends { data: unknown; error: { messag
   try {
     return await withRetry(fn, attempts, delayMs)
   } catch (error) {
+    // Loggé ici (point central unique) plutôt que dans chaque appelant : sans ça,
+    // un échec réseau qui épuise les tentatives est invisible dans les logs de
+    // production pour la plupart des actions (elles renvoient juste { error }
+    // sans jamais l'avoir loggé elles-mêmes).
+    console.error('withRetryResult: échec après', attempts, 'tentative(s):', error)
     return { data: null, error: { message: error instanceof Error ? error.message : String(error) } }
   }
 }
