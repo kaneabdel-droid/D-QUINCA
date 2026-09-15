@@ -3,9 +3,10 @@ import { resetPasswordForEmail } from './actions'
 export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; admin?: string }>
 }) {
-  const { message } = await searchParams
+  const { message, admin } = await searchParams
+  const isAdmin = admin === '1'
 
   return (
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-background">
@@ -20,6 +21,7 @@ export default async function ForgotPasswordPage({
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" action={resetPasswordForEmail}>
+          {isAdmin && <input type="hidden" name="admin" value="1" />}
           {message && (
             <p className="text-sm text-center bg-danger/10 text-danger p-3 rounded-md">
               {message}
@@ -53,7 +55,7 @@ export default async function ForgotPasswordPage({
         </form>
 
         <p className="mt-10 text-center text-sm text-foreground-muted">
-          <a href="/login" className="font-semibold leading-6 text-primary hover:text-primary-hover">
+          <a href={isAdmin ? '/admin/login' : '/login'} className="font-semibold leading-6 text-primary hover:text-primary-hover">
             Retour à la connexion
           </a>
         </p>

@@ -3,9 +3,10 @@ import { updatePassword } from './actions'
 export default async function UpdatePasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; admin?: string }>
 }) {
-  const { message } = await searchParams
+  const { message, admin } = await searchParams
+  const isAdmin = admin === '1'
 
   return (
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-background">
@@ -20,6 +21,7 @@ export default async function UpdatePasswordPage({
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" action={updatePassword}>
+          {isAdmin && <input type="hidden" name="admin" value="1" />}
           {message && (
             <p className="text-sm text-center bg-danger/10 text-danger p-3 rounded-md">
               {message}
