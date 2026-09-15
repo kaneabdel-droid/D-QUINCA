@@ -30,10 +30,7 @@ export async function loginDemo(formData: FormData) {
 
   if (error || !data?.properties?.hashed_token) {
     console.error('Erreur génération lien démo:', error)
-    // TEMPORAIRE, diagnostic uniquement — expose le message d'erreur brut dans
-    // l'URL pour contourner le retard/l'indisponibilité des logs Vercel. À
-    // retirer une fois la cause confirmée.
-    redirect(`/decouvrir-dquinca?demo_error=1&debug=${encodeURIComponent(JSON.stringify({ message: (error as Error)?.message, name: (error as Error)?.name, cause: String((error as { cause?: unknown })?.cause) }))}`)
+    redirect('/decouvrir-dquinca?demo_error=1')
   }
 
   const supabase = await createClient()

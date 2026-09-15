@@ -9,7 +9,7 @@ export const metadata = {
 export default async function DecouvrirDquincaPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ demo_error?: string; debug?: string }>
+  searchParams?: Promise<{ demo_error?: string }>
 }) {
   const params = await searchParams
   const demoError = params?.demo_error === '1'
@@ -42,7 +42,6 @@ export default async function DecouvrirDquincaPage({
             {demoError && (
               <p className="mb-6 text-sm bg-danger/10 text-danger p-3 rounded-md max-w-md mx-auto">
                 Connexion démo indisponible pour le moment. Réessayez dans un instant.
-                {params?.debug && <span data-debug="1"> [{params.debug}]</span>}
               </p>
             )}
             <div className="grid sm:grid-cols-3 gap-4">
