@@ -28,24 +28,28 @@ export default async function RentabilitePage() {
   const parMagasin: (RentabiliteRow & { nom: string })[] = []
   const articlesMap = new Map<string, ArticleRow>()
 
-  for (const magasin of magasins ?? []) {
-    const { data: rentabilite } = await supabase
-      .rpc('rentabilite_periode', { p_magasin_id: magasin.id, p_date_debut, p_date_fin })
-      .single()
+  // Les deux RPC par magasin sont indépendantes entre elles et d'un magasin à
+  // l'autre — Promise.all remplace N/2N allers-retours séquentiels par un seul
+  // aller-retour parallèle, sans changer le résultat (constaté en audit).
+  const resultats = await Promise.all(
+    (magasins ?? []).map(async (magasin) => {
+      const [{ data: rentabilite }, { data: articles }] = await Promise.all([
+        supabase.rpc('rentabilite_periode', { p_magasin_id: magasin.id, p_date_debut, p_date_fin }).single(),
+        supabase.rpc('rentabilite_par_article', { p_magasin_id: magasin.id, p_date_debut, p_date_fin }),
+      ])
+      return { nom: magasin.nom, rentabilite, articles }
+    })
+  )
 
+  for (const { nom, rentabilite, articles } of resultats) {
     const r = (rentabilite ?? { ca: 0, cout: 0, marge_brute: 0, charges: 0, resultat_net: 0 }) as RentabiliteRow
-    parMagasin.push({ nom: magasin.nom, ...r })
+    parMagasin.push({ nom, ...r })
     totaux.ca += Number(r.ca)
     totaux.cout += Number(r.cout)
     totaux.marge_brute += Number(r.marge_brute)
     totaux.charges += Number(r.charges)
     totaux.resultat_net += Number(r.resultat_net)
 
-    const { data: articles } = await supabase.rpc('rentabilite_par_article', {
-      p_magasin_id: magasin.id,
-      p_date_debut,
-      p_date_fin,
-    })
     for (const a of (articles ?? []) as ArticleRow[]) {
       const existant = articlesMap.get(a.article_id)
       if (existant) {
