@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 import LanguageSelector from '@/components/LanguageSelector'
+import type { Dictionary } from '@/dictionaries'
 import {
   LayoutDashboard,
   Tags,
@@ -30,31 +31,31 @@ import {
 type Role = 'admin_entreprise' | 'gerant'
 
 const navGerant = [
-  { key: 'dashboard', href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { key: 'categories', href: '/categories', label: 'Catégories', icon: Tags },
-  { key: 'articles', href: '/articles', label: 'Articles', icon: Package },
-  { key: 'stock', href: '/stock', label: 'Stock', icon: Boxes },
-  { key: 'clients', href: '/clients', label: 'Clients', icon: Users },
-  { key: 'fournisseurs', href: '/fournisseurs', label: 'Fournisseurs', icon: Building2 },
-  { key: 'ventes', href: '/ventes', label: 'Ventes', icon: ShoppingCart },
-  { key: 'achats', href: '/achats', label: 'Achats', icon: Truck },
-  { key: 'creances', href: '/creances', label: 'Créances', icon: HandCoins },
-  { key: 'dettes', href: '/dettes', label: 'Dettes', icon: Banknote },
-  { key: 'tresorerie', href: '/tresorerie', label: 'Trésorerie', icon: Wallet },
-  { key: 'charges', href: '/charges', label: 'Charges', icon: Receipt },
-]
+  { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { key: 'categories', href: '/categories', icon: Tags },
+  { key: 'articles', href: '/articles', icon: Package },
+  { key: 'stock', href: '/stock', icon: Boxes },
+  { key: 'clients', href: '/clients', icon: Users },
+  { key: 'fournisseurs', href: '/fournisseurs', icon: Building2 },
+  { key: 'ventes', href: '/ventes', icon: ShoppingCart },
+  { key: 'achats', href: '/achats', icon: Truck },
+  { key: 'creances', href: '/creances', icon: HandCoins },
+  { key: 'dettes', href: '/dettes', icon: Banknote },
+  { key: 'tresorerie', href: '/tresorerie', icon: Wallet },
+  { key: 'charges', href: '/charges', icon: Receipt },
+] as const
 
 // Vue consolidée, lecture seule : pas d'accès aux modules opérationnels (cf.
 // plan §5 — chaque page.tsx d'écriture redirige un admin_entreprise vers
 // /dashboard même en cas d'accès direct par URL, la nav filtrée n'étant qu'un
 // confort, pas un contrôle d'accès).
 const navAdminEntreprise = [
-  { key: 'dashboard', href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { key: 'comparatif', href: '/comparatif', label: 'Comparatif magasins', icon: BarChart3 },
-  { key: 'rentabilite', href: '/rentabilite', label: 'Rentabilité', icon: TrendingUp },
-  { key: 'abonnement', href: '/abonnement', label: 'Abonnement', icon: CreditCard },
-  { key: 'parametres', href: '/parametres', label: 'Paramètres', icon: Settings },
-]
+  { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { key: 'comparatif', href: '/comparatif', icon: BarChart3 },
+  { key: 'rentabilite', href: '/rentabilite', icon: TrendingUp },
+  { key: 'abonnement', href: '/abonnement', icon: CreditCard },
+  { key: 'parametres', href: '/parametres', icon: Settings },
+] as const
 
 export default function ClientLayout({
   children,
@@ -62,16 +63,19 @@ export default function ClientLayout({
   entrepriseNom,
   magasinNom,
   locale,
+  dict,
 }: {
   children: React.ReactNode
   role: Role
   entrepriseNom: string
   magasinNom: string | null
   locale: string
+  dict: Dictionary
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const [pathnamePrecedent, setPathnamePrecedent] = useState(pathname)
+  const nav = dict.nav
 
   const navigation = role === 'gerant' ? navGerant : navAdminEntreprise
 
@@ -94,7 +98,7 @@ export default function ClientLayout({
           <div className="relative mr-16 flex w-full max-w-xs flex-1">
             <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
               <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
-                <span className="sr-only">Fermer la barre latérale</span>
+                <span className="sr-only">{nav.closeSidebar}</span>
                 <X className="h-6 w-6 text-white" aria-hidden="true" />
               </button>
             </div>
@@ -117,7 +121,7 @@ export default function ClientLayout({
                         }`}
                       >
                         <item.icon className={`h-6 w-6 shrink-0 ${pathname === item.href ? 'text-white' : 'text-foreground-muted group-hover:text-foreground'}`} aria-hidden="true" />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{nav[item.key]}</span>
                       </Link>
                     </li>
                   ))}
@@ -149,7 +153,7 @@ export default function ClientLayout({
                         }`}
                       >
                         <item.icon className={`h-6 w-6 shrink-0 ${pathname === item.href ? 'text-white' : 'text-foreground-muted group-hover:text-foreground'}`} aria-hidden="true" />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{nav[item.key]}</span>
                       </Link>
                     </li>
                   ))}
@@ -162,7 +166,7 @@ export default function ClientLayout({
                   className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-foreground-muted hover:bg-black/5 hover:text-danger transition-colors"
                 >
                   <LogOut className="h-6 w-6 shrink-0 text-foreground-muted group-hover:text-danger" aria-hidden="true" />
-                  Déconnexion
+                  {nav.logout}
                 </a>
               </li>
             </ul>
@@ -173,7 +177,7 @@ export default function ClientLayout({
       <div className="lg:pl-60">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-surface-border bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button type="button" className="-m-2.5 p-2.5 text-foreground-muted lg:hidden" onClick={() => setSidebarOpen(true)}>
-            <span className="sr-only">Ouvrir la barre latérale</span>
+            <span className="sr-only">{nav.openSidebar}</span>
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
 

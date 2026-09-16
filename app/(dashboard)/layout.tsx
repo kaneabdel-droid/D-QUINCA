@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUserContext } from '@/lib/auth/getCurrentUserContext'
-import { getLocale } from '@/dictionaries'
+import { getLocale, getDictionary } from '@/dictionaries'
 import ClientLayout from './ClientLayout'
 
 export default async function DashboardLayout({
@@ -19,6 +19,7 @@ export default async function DashboardLayout({
   if (context.entrepriseStatut === 'suspendu') redirect('/compte-suspendu')
 
   const locale = await getLocale()
+  const dict = await getDictionary(locale)
 
   return (
     <ClientLayout
@@ -26,6 +27,7 @@ export default async function DashboardLayout({
       entrepriseNom={context.entrepriseNom}
       magasinNom={context.magasinNom}
       locale={locale}
+      dict={dict}
     >
       {children}
     </ClientLayout>
