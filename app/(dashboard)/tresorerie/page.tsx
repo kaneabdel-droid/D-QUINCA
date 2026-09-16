@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { Wallet, Landmark, Smartphone } from 'lucide-react'
+import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
 import AddEcritureButton from './AddEcritureButton'
 
@@ -13,6 +14,8 @@ const iconParType: Record<string, typeof Wallet> = {
 export default async function TresoreriePage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.tresorerie
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
@@ -39,12 +42,12 @@ export default async function TresoreriePage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Trésorerie</h2>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
           <p className="mt-2 text-sm text-foreground-muted">{context.magasinNom}</p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-2">
-          <CreateCompteButton />
-          <AddEcritureButton comptes={comptes ?? []} />
+          <CreateCompteButton dict={dict} />
+          <AddEcritureButton comptes={comptes ?? []} dict={dict} />
         </div>
       </div>
 
@@ -67,20 +70,20 @@ export default async function TresoreriePage() {
           )
         })}
         {(comptes ?? []).length === 0 && (
-          <p className="text-sm text-foreground-muted col-span-full">Aucun compte de trésorerie. Créez-en un pour commencer.</p>
+          <p className="text-sm text-foreground-muted col-span-full">{t.emptyComptes}</p>
         )}
       </div>
 
-      <h3 className="mt-10 mb-4 text-lg font-semibold text-foreground">Journal</h3>
+      <h3 className="mt-10 mb-4 text-lg font-semibold text-foreground">{t.journal}</h3>
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Date</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Compte</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Catégorie</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Motif</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Montant</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCompte}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCategorie}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colMotif}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMontant}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -99,7 +102,7 @@ export default async function TresoreriePage() {
             ))}
             {(mouvements ?? []).length === 0 && (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">Aucun mouvement</td>
+                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMouvements}</td>
               </tr>
             )}
           </tbody>

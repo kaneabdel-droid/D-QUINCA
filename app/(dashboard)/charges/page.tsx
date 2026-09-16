@@ -1,11 +1,15 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { getDictionary, getLocale } from '@/dictionaries'
 import CreateChargeButton from './CreateChargeButton'
 import DeleteChargeButton from './DeleteChargeButton'
 
 export default async function ChargesPage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.charges
+  const c = dict.common
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
@@ -27,13 +31,13 @@ export default async function ChargesPage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Charges</h2>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
           <p className="mt-2 text-sm text-foreground-muted">
-            Ce mois-ci : <strong className="text-foreground">{totalMois.toLocaleString('fr-FR')}</strong>
+            {t.thisMonth} <strong className="text-foreground">{totalMois.toLocaleString('fr-FR')}</strong>
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <CreateChargeButton comptes={comptes ?? []} />
+          <CreateChargeButton comptes={comptes ?? []} dict={dict} />
         </div>
       </div>
 
@@ -41,34 +45,34 @@ export default async function ChargesPage() {
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Date</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Catégorie</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Libellé</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Montant</th>
-              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">Récurrente</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCategorie}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colLibelle}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMontant}</th>
+              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colRecurrente}</th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{c.actions}</span>
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
-            {(charges ?? []).map((c) => (
-              <tr key={c.id} className="hover:bg-background/50 transition-colors">
+            {(charges ?? []).map((charge) => (
+              <tr key={charge.id} className="hover:bg-background/50 transition-colors">
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-foreground-muted sm:pl-6">
-                  {c.date_charge ? new Date(c.date_charge).toLocaleDateString('fr-FR') : '-'}
+                  {charge.date_charge ? new Date(charge.date_charge).toLocaleDateString('fr-FR') : '-'}
                 </td>
-                <td className="px-3 py-4 text-sm text-foreground capitalize">{c.categorie}</td>
-                <td className="px-3 py-4 text-sm text-foreground-muted">{c.libelle || '-'}</td>
-                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(c.montant).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-4 text-sm text-center">{c.recurrente ? 'Oui' : 'Non'}</td>
+                <td className="px-3 py-4 text-sm text-foreground capitalize">{charge.categorie}</td>
+                <td className="px-3 py-4 text-sm text-foreground-muted">{charge.libelle || '-'}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(charge.montant).toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-center">{charge.recurrente ? c.yes : c.no}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <DeleteChargeButton id={c.id} />
+                  <DeleteChargeButton id={charge.id} dict={dict} />
                 </td>
               </tr>
             ))}
             {(charges ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">Aucune charge</td>
+                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>
