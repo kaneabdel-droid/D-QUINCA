@@ -1,11 +1,14 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { AlertTriangle } from 'lucide-react'
+import { getDictionary, getLocale } from '@/dictionaries'
 import AjustementStockButton from './AjustementStockButton'
 
 export default async function StockPage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.stock
 
   const { data: articles } = await supabase
     .from('articles')
@@ -28,24 +31,17 @@ export default async function StockPage() {
   const stockParArticle = new Map((stocks ?? []).map((s) => [s.article_id, s.quantite]))
   const articleParId = new Map((articles ?? []).map((a) => [a.id, a]))
 
-  const libellesMouvement: Record<string, string> = {
-    entree_achat: 'Entrée (achat)',
-    sortie_vente: 'Sortie (vente)',
-    ajustement_positif: 'Ajustement +',
-    ajustement_negatif: 'Ajustement -',
-    transfert_entree: 'Transfert (entrée)',
-    transfert_sortie: 'Transfert (sortie)',
-  }
+  const libellesMouvement: Record<string, string> = t.movementLabels
 
   return (
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Stock</h2>
-          <p className="mt-2 text-sm text-foreground-muted">Niveaux de stock actuels et derniers mouvements.</p>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
+          <p className="mt-2 text-sm text-foreground-muted">{t.subtitle}</p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <AjustementStockButton articles={(articles ?? []).map((a) => ({ id: a.id, designation: a.designation, unite: a.unite }))} />
+          <AjustementStockButton articles={(articles ?? []).map((a) => ({ id: a.id, designation: a.designation, unite: a.unite }))} dict={dict} />
         </div>
       </div>
 
@@ -53,9 +49,9 @@ export default async function StockPage() {
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Article</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Quantité disponible</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Statut</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colArticle}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colQuantiteDispo}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colStatut}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -69,10 +65,10 @@ export default async function StockPage() {
                   <td className="px-3 py-4 text-sm">
                     {bas ? (
                       <span className="inline-flex items-center gap-1 text-warning font-medium">
-                        <AlertTriangle className="h-4 w-4" /> Stock bas
+                        <AlertTriangle className="h-4 w-4" /> {t.lowStock}
                       </span>
                     ) : (
-                      <span className="text-success font-medium">OK</span>
+                      <span className="text-success font-medium">{t.ok}</span>
                     )}
                   </td>
                 </tr>
@@ -80,23 +76,23 @@ export default async function StockPage() {
             })}
             {(articles ?? []).length === 0 && (
               <tr>
-                <td colSpan={3} className="py-8 text-center text-sm text-foreground-muted">Aucun article actif</td>
+                <td colSpan={3} className="py-8 text-center text-sm text-foreground-muted">{t.emptyArticles}</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <h3 className="mt-10 mb-4 text-lg font-semibold text-foreground">Derniers mouvements</h3>
+      <h3 className="mt-10 mb-4 text-lg font-semibold text-foreground">{t.recentMovements}</h3>
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Date</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Article</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Type</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Quantité</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Motif</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colArticle}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colType}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colQuantite}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colMotif}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -113,7 +109,7 @@ export default async function StockPage() {
             ))}
             {(mouvements ?? []).length === 0 && (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">Aucun mouvement</td>
+                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMovements}</td>
               </tr>
             )}
           </tbody>

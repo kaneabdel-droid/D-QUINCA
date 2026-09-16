@@ -18,6 +18,8 @@ export const getDictionary = async (locale?: Locale) => {
   return dictionaries[locale]()
 }
 
+export type Dictionary = Awaited<ReturnType<typeof getDictionary>>
+
 export const getLocale = async () => {
   const cookieStore = await cookies()
   const cookieLocale = cookieStore.get('lang')?.value as Locale
