@@ -27,7 +27,13 @@ export const getCurrentUserContext = cache(async (): Promise<UserContext> => {
 
   const { data } = await supabase
     .from('utilisateurs')
-    .select('entreprise_id, role, magasin_id, entreprises(nom, statut, devise, logo_url), magasins(nom)')
+    // logo_url/email/identification (migration 16) sont volontairement absents
+    // de cette requête, contrairement à la page /parametres qui les lit à part :
+    // getCurrentUserContext() est le chokepoint utilisé par CHAQUE page du
+    // dashboard (via le layout), donc une seule colonne manquante ici casserait
+    // l'app entière tant que la migration n'a pas tourné — /parametres, elle,
+    // n'affecte qu'elle-même si elle échoue avant la migration.
+    .select('entreprise_id, role, magasin_id, entreprises(nom, statut, devise), magasins(nom)')
     .eq('id', user.id)
     .single()
 
@@ -43,7 +49,9 @@ export const getCurrentUserContext = cache(async (): Promise<UserContext> => {
     entrepriseNom: entreprise?.nom ?? '',
     entrepriseStatut: entreprise?.statut ?? 'actif',
     entrepriseDevise: entreprise?.devise ?? 'XOF',
-    entrepriseLogoUrl: entreprise?.logo_url ?? null,
+    // Volontairement non sélectionné ci-dessus (cf. commentaire sur le select) —
+    // toujours null tant que la migration 16 n'a pas tourné ; à relier après.
+    entrepriseLogoUrl: null,
     role: data.role,
     magasinId: data.magasin_id,
     magasinNom: magasin?.nom ?? null,
