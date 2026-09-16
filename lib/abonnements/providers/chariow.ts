@@ -8,6 +8,7 @@
 import type { AdaptateurPaiement, InitierPaiementParams, InitierPaiementResultat, StatutPaiementDistant, StatutProvider } from '../types'
 import type { DureeMois, PalierCode } from '../paliers'
 import { versNumeroNational } from '../telephone'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 const API_URL = process.env.CHARIOW_API_URL || 'https://api.chariow.com/v1'
 
@@ -39,7 +40,20 @@ const VARIABLES_PRODUIT: Record<PalierCode, Record<DureeMois, string>> = {
   },
 }
 
-function idProduit(palier: PalierCode, dureeMois: DureeMois): string | null {
+// Table admin-éditable (chariow_produits) en priorité — permet à l'admin système
+// de changer un product_id sans redéploiement (cf. /admin/config) — repli sur la
+// variable d'env si aucune ligne n'existe encore pour ce palier/durée (migration
+// progressive, zéro coupure au moment où la table est introduite).
+async function idProduit(palier: PalierCode, dureeMois: DureeMois): Promise<string | null> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('chariow_produits')
+    .select('product_id')
+    .eq('palier', palier)
+    .eq('duree_mois', dureeMois)
+    .maybeSingle()
+  if (data?.product_id) return data.product_id
+
   const variable = VARIABLES_PRODUIT[palier][dureeMois]
   return process.env[variable] || null
 }
@@ -71,7 +85,7 @@ export const chariowAdapter: AdaptateurPaiement = {
   id: 'chariow',
 
   async initierPaiement(params: InitierPaiementParams): Promise<InitierPaiementResultat> {
-    const productId = idProduit(params.palier, params.dureeMois)
+    const productId = await idProduit(params.palier, params.dureeMois)
     if (!productId) {
       return {
         ok: false,

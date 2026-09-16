@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Building2, LogOut } from 'lucide-react'
+import { LayoutDashboard, Building2, Inbox, CreditCard, Settings, LogOut } from 'lucide-react'
 import { getSharedAdminUser, getLocalUser } from '@/utils/supabase/admin-identity'
 import { isAdminEmail } from '@/lib/admin/auth'
 
@@ -18,11 +18,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect(localUser ? '/dashboard' : '/admin/login')
   }
 
-  // Nav réduite à "Entreprises" : pas de Paiements/Config, la facturation SaaS
-  // est hors périmètre du MVP D-QUINCA (cf. plan §0).
   const navItems = [
     { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard },
     { href: '/admin/entreprises', label: 'Entreprises', icon: Building2 },
+    { href: '/admin/demandes', label: 'Demandes', icon: Inbox },
+    { href: '/admin/paiements', label: 'Paiements', icon: CreditCard },
+    { href: '/admin/config', label: 'Configuration', icon: Settings },
   ]
 
   return (
