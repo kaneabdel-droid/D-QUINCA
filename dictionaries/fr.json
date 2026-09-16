@@ -1,0 +1,89 @@
+{
+  "home": {
+    "title": "D-QUINCA",
+    "tagline": "La solution de gestion pour quincailleries en Afrique. Suivez vos stocks, vos ventes et vos magasins en toute simplicité.",
+    "subscribe": "S'abonner",
+    "discover": "Découvrir →",
+    "features": {
+      "stock": { "title": "Stock en temps réel", "desc": "Suivez vos entrées et sorties, magasin par magasin, sans feuille de calcul." },
+      "ventes": { "title": "Ventes & achats", "desc": "Facturez vos clients, gérez vos fournisseurs, suivez créances et dettes." },
+      "magasins": { "title": "Plusieurs magasins", "desc": "Une vue consolidée de toute votre entreprise, et le détail par magasin." }
+    }
+  },
+  "decouvrir": {
+    "backHome": "Retour à l'accueil",
+    "heroTitlePrefix": "Comment fonctionne",
+    "heroTitleSuffix": "?",
+    "heroSubtitle": "Stock, ventes, achats, créances/dettes et trésorerie — un ou plusieurs magasins, un seul tableau de bord.",
+    "demoTitle": "Essayez la démo en un clic",
+    "demoDesc": "Entreprise de démonstration SUNUQuinca (2 magasins, données réelles d'achats, ventes et stock) — choisissez un point de vue.",
+    "demoError": "Connexion démo indisponible pour le moment. Réessayez dans un instant.",
+    "demoAdmin": "Vue consolidée",
+    "demoAdminRole": "Administrateur entreprise",
+    "demoGerant1": "SUNUQuinca1",
+    "demoGerant1Role": "Gérant, Dakar",
+    "demoGerant2": "SUNUQuinca2",
+    "demoGerant2Role": "Gérant, Thiès",
+    "demoNote": "Cet espace est partagé entre tous les visiteurs — évitez d'y saisir des informations réelles.",
+    "modulesTitle": "Un circuit complet, magasin par magasin",
+    "moduleStock": { "title": "Stock en temps réel", "desc": "Catégories, articles, seuils d'alerte et historique des mouvements." },
+    "moduleVentes": { "title": "Ventes & achats", "desc": "Comptant, crédit ou mixte, avec reçu et suivi des marges." },
+    "moduleCreances": { "title": "Créances & dettes", "desc": "Qui vous doit, à qui vous devez, réglé en un clic." },
+    "moduleTresorerie": { "title": "Trésorerie", "desc": "Caisse, mobile money, banque — journal complet des mouvements." },
+    "cta": "S'abonner"
+  },
+  "auth": {
+    "login": {
+      "title": "D-QUINCA",
+      "desc": "Connexion à votre espace",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Compte non reconnu ? Contactez votre administrateur — les comptes D-QUINCA sont créés exclusivement par l'équipe Demba Solution."
+    },
+    "adminLogin": {
+      "title": "Administration D-QUINCA",
+      "desc": "Accès réservé à l'équipe Demba Solution",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "notCompanySpace": "Ceci n'est pas l'espace de connexion des entreprises.",
+      "clientLogin": "Connexion client"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "desc": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien",
+      "backToLogin": "Retour à la connexion"
+    },
+    "updatePassword": {
+      "title": "Nouveau mot de passe",
+      "desc": "Choisissez votre nouveau mot de passe.",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "Mettre à jour"
+    }
+  },
+  "tarifs": {
+    "back": "Retour",
+    "title": "Des tarifs pensés pour chaque quincaillerie",
+    "subtitle": "Choisissez un palier, réglez en ligne — votre compte est activé dès que le paiement est confirmé.",
+    "duration": "Durée",
+    "companyName": "Nom de l'entreprise",
+    "companyNamePlaceholder": "Ma Quincaillerie SARL",
+    "contactName": "Nom du contact",
+    "contactNamePlaceholder": "Votre nom complet",
+    "email": "E-mail",
+    "country": "Pays",
+    "phone": "Téléphone",
+    "totalToPay": "Total à payer",
+    "payNow": "Payer maintenant",
+    "redirecting": "Redirection...",
+    "storesUpTo": "Jusqu'à {n} magasin(s)",
+    "perMonth": "/ mois",
+    "afterPaymentNote": "Après confirmation du paiement, votre compte entreprise est créé sous 24h ouvrées et vos accès vous sont envoyés par e-mail."
+  }
+}

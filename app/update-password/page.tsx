@@ -1,3 +1,5 @@
+import LanguageSelector from '@/components/LanguageSelector'
+import { getDictionary, getLocale } from '@/dictionaries'
 import { updatePassword } from './actions'
 
 export default async function UpdatePasswordPage({
@@ -7,15 +9,21 @@ export default async function UpdatePasswordPage({
 }) {
   const { message, admin } = await searchParams
   const isAdmin = admin === '1'
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.auth.updatePassword
 
   return (
-    <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-background">
+    <div className="relative flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-background">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector currentLang={locale} />
+      </div>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold font-heading leading-9 tracking-tight text-primary">
-          Nouveau mot de passe
+          {t.title}
         </h2>
         <p className="mt-2 text-center text-sm text-foreground-muted">
-          Choisissez votre nouveau mot de passe.
+          {t.desc}
         </p>
       </div>
 
@@ -30,7 +38,7 @@ export default async function UpdatePasswordPage({
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium leading-6 text-foreground">
-              Mot de passe
+              {t.password}
             </label>
             <div className="mt-2">
               <input
@@ -47,7 +55,7 @@ export default async function UpdatePasswordPage({
 
           <div>
             <label htmlFor="password_confirm" className="block text-sm font-medium leading-6 text-foreground">
-              Confirmer le mot de passe
+              {t.confirmPassword}
             </label>
             <div className="mt-2">
               <input
@@ -67,7 +75,7 @@ export default async function UpdatePasswordPage({
               type="submit"
               className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Mettre à jour
+              {t.submit}
             </button>
           </div>
         </form>

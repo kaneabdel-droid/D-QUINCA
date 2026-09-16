@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Building2, LayoutDashboard, Boxes, ShoppingCart, HandCoins, Wallet } from 'lucide-react'
+import LanguageSelector from '@/components/LanguageSelector'
+import { getDictionary, getLocale } from '@/dictionaries'
 import { loginDemo } from './actions'
 
 export const metadata = {
@@ -13,35 +15,44 @@ export default async function DecouvrirDquincaPage({
 }) {
   const params = await searchParams
   const demoError = params?.demo_error === '1'
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const d = dict.decouvrir
+
+  const modules = [
+    { icon: Boxes, title: d.moduleStock.title, desc: d.moduleStock.desc },
+    { icon: ShoppingCart, title: d.moduleVentes.title, desc: d.moduleVentes.desc },
+    { icon: HandCoins, title: d.moduleCreances.title, desc: d.moduleCreances.desc },
+    { icon: Wallet, title: d.moduleTresorerie.title, desc: d.moduleTresorerie.desc },
+  ]
 
   return (
     <div className="bg-background min-h-screen font-sans text-foreground">
       <main>
         {/* Hero */}
-        <section className="py-16 lg:py-24 bg-gradient-to-br from-surface to-background">
+        <section className="py-16 lg:py-24 bg-gradient-to-br from-surface to-background relative">
+          <div className="absolute top-4 right-4">
+            <LanguageSelector currentLang={locale} />
+          </div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
             <Link href="/" className="text-sm font-medium text-foreground-muted hover:text-primary flex items-center justify-center gap-2 mb-6">
-              <ArrowLeft className="w-4 h-4" /> Retour à l&apos;accueil
+              <ArrowLeft className="w-4 h-4" /> {d.backHome}
             </Link>
             <h1 className="text-4xl md:text-6xl font-bold font-heading tracking-tight mb-6">
-              Comment fonctionne <span className="text-primary">D-QUINCA</span> ?
+              {d.heroTitlePrefix} <span className="text-primary">D-QUINCA</span> {d.heroTitleSuffix}
             </h1>
-            <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
-              Stock, ventes, achats, créances/dettes et trésorerie — un ou plusieurs magasins, un seul tableau de bord.
-            </p>
+            <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">{d.heroSubtitle}</p>
           </div>
         </section>
 
         {/* Démo en direct */}
         <section className="py-16 bg-primary/5 border-y border-surface-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl text-center">
-            <h2 className="text-2xl md:text-3xl font-bold font-heading mb-3">Essayez la démo en un clic</h2>
-            <p className="text-foreground-muted mb-8">
-              Entreprise de démonstration <strong>SUNUQuinca</strong> (2 magasins, données réelles d&apos;achats, ventes et stock) — choisissez un point de vue.
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold font-heading mb-3">{d.demoTitle}</h2>
+            <p className="text-foreground-muted mb-8">{d.demoDesc}</p>
             {demoError && (
               <p className="mb-6 text-sm bg-danger/10 text-danger p-3 rounded-md max-w-md mx-auto">
-                Connexion démo indisponible pour le moment. Réessayez dans un instant.
+                {d.demoError}
               </p>
             )}
             <div className="grid sm:grid-cols-3 gap-4">
@@ -49,44 +60,37 @@ export default async function DecouvrirDquincaPage({
                 <input type="hidden" name="role" value="admin" />
                 <button type="submit" className="w-full flex flex-col items-center gap-2 rounded-xl border border-surface-border bg-background p-5 hover:border-primary hover:shadow-md transition-all">
                   <Building2 className="w-6 h-6 text-primary" />
-                  <span className="font-semibold">Vue consolidée</span>
-                  <span className="text-xs text-foreground-muted">Administrateur entreprise</span>
+                  <span className="font-semibold">{d.demoAdmin}</span>
+                  <span className="text-xs text-foreground-muted">{d.demoAdminRole}</span>
                 </button>
               </form>
               <form action={loginDemo}>
                 <input type="hidden" name="role" value="gerant1" />
                 <button type="submit" className="w-full flex flex-col items-center gap-2 rounded-xl border border-surface-border bg-background p-5 hover:border-primary hover:shadow-md transition-all">
                   <LayoutDashboard className="w-6 h-6 text-primary" />
-                  <span className="font-semibold">SUNUQuinca1</span>
-                  <span className="text-xs text-foreground-muted">Gérant, Dakar</span>
+                  <span className="font-semibold">{d.demoGerant1}</span>
+                  <span className="text-xs text-foreground-muted">{d.demoGerant1Role}</span>
                 </button>
               </form>
               <form action={loginDemo}>
                 <input type="hidden" name="role" value="gerant2" />
                 <button type="submit" className="w-full flex flex-col items-center gap-2 rounded-xl border border-surface-border bg-background p-5 hover:border-primary hover:shadow-md transition-all">
                   <LayoutDashboard className="w-6 h-6 text-primary" />
-                  <span className="font-semibold">SUNUQuinca2</span>
-                  <span className="text-xs text-foreground-muted">Gérant, Thiès</span>
+                  <span className="font-semibold">{d.demoGerant2}</span>
+                  <span className="text-xs text-foreground-muted">{d.demoGerant2Role}</span>
                 </button>
               </form>
             </div>
-            <p className="mt-6 text-xs text-foreground-muted">
-              Cet espace est partagé entre tous les visiteurs — évitez d&apos;y saisir des informations réelles.
-            </p>
+            <p className="mt-6 text-xs text-foreground-muted">{d.demoNote}</p>
           </div>
         </section>
 
         {/* Modules */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <h2 className="text-3xl font-bold font-heading text-center mb-12">Un circuit complet, magasin par magasin</h2>
+            <h2 className="text-3xl font-bold font-heading text-center mb-12">{d.modulesTitle}</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { icon: Boxes, title: 'Stock en temps réel', desc: "Catégories, articles, seuils d'alerte et historique des mouvements." },
-                { icon: ShoppingCart, title: 'Ventes & achats', desc: 'Comptant, crédit ou mixte, avec reçu et suivi des marges.' },
-                { icon: HandCoins, title: 'Créances & dettes', desc: 'Qui vous doit, à qui vous devez, réglé en un clic.' },
-                { icon: Wallet, title: 'Trésorerie', desc: 'Caisse, mobile money, banque — journal complet des mouvements.' },
-              ].map((m, i) => (
+              {modules.map((m, i) => (
                 <div key={i} className="rounded-2xl border border-surface-border bg-surface p-8">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                     <m.icon className="w-6 h-6" />
@@ -103,7 +107,7 @@ export default async function DecouvrirDquincaPage({
         <section className="py-16 bg-surface border-t border-surface-border text-center">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <Link href="/tarifs" className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-hover hover:scale-105 transition-all">
-              S&apos;abonner <ArrowRight className="w-5 h-5" />
+              {d.cta} <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

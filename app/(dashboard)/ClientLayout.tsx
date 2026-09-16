@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
+import LanguageSelector from '@/components/LanguageSelector'
 import {
   LayoutDashboard,
   Tags,
@@ -58,11 +59,13 @@ export default function ClientLayout({
   role,
   entrepriseNom,
   magasinNom,
+  locale,
 }: {
   children: React.ReactNode
   role: Role
   entrepriseNom: string
   magasinNom: string | null
+  locale: string
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
@@ -177,6 +180,7 @@ export default function ClientLayout({
           <div className="flex flex-1 min-w-0 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1"></div>
             <div className="flex min-w-0 items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
+              <LanguageSelector currentLang={locale} />
               <ThemeSwitcher />
               <div className="min-w-0 max-w-[10rem] truncate text-sm font-semibold leading-6 text-foreground sm:max-w-xs">
                 {entrepriseNom}

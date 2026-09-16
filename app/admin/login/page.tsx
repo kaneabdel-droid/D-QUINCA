@@ -1,4 +1,6 @@
 import { ShieldCheck } from 'lucide-react'
+import LanguageSelector from '@/components/LanguageSelector'
+import { getDictionary, getLocale } from '@/dictionaries'
 import { loginAdmin } from './actions'
 
 export default async function AdminLoginPage({
@@ -7,18 +9,24 @@ export default async function AdminLoginPage({
   searchParams: Promise<{ message?: string }>
 }) {
   const { message } = await searchParams
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.auth.adminLogin
 
   return (
-    <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-surface">
+    <div className="relative flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-surface">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector currentLang={locale} />
+      </div>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
           <ShieldCheck className="h-6 w-6 text-primary" />
         </div>
         <h2 className="text-2xl font-bold leading-9 tracking-tight text-foreground">
-          Administration D-QUINCA
+          {t.title}
         </h2>
         <p className="mt-2 text-sm text-foreground-muted">
-          Accès réservé à l&apos;équipe Demba Solution
+          {t.desc}
         </p>
       </div>
 
@@ -32,7 +40,7 @@ export default async function AdminLoginPage({
         <form className="space-y-6 bg-background p-6 rounded-2xl border border-surface-border shadow-sm" action={loginAdmin}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-foreground">
-              Adresse e-mail
+              {t.email}
             </label>
             <div className="mt-2">
               <input
@@ -49,10 +57,10 @@ export default async function AdminLoginPage({
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="password" className="block text-sm font-medium leading-6 text-foreground">
-                Mot de passe
+                {t.password}
               </label>
-              <a href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary-hover">
-                Mot de passe oublié ?
+              <a href="/forgot-password?admin=1" className="text-sm font-semibold text-primary hover:text-primary-hover">
+                {t.forgotPassword}
               </a>
             </div>
             <div className="mt-2">
@@ -72,15 +80,15 @@ export default async function AdminLoginPage({
               type="submit"
               className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Se connecter
+              {t.submit}
             </button>
           </div>
         </form>
 
         <p className="mt-6 text-center text-xs text-foreground-muted">
-          Ceci n&apos;est pas l&apos;espace de connexion des entreprises.{' '}
+          {t.notCompanySpace}{' '}
           <a href="/login" className="font-semibold text-primary hover:text-primary-hover">
-            Connexion client
+            {t.clientLogin}
           </a>
         </p>
       </div>

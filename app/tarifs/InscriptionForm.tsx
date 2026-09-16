@@ -19,7 +19,24 @@ function formatFcfa(montant: number): string {
   return `${montant.toLocaleString('fr-FR')} FCFA`
 }
 
-export default function InscriptionForm() {
+type Dict = {
+  duration: string
+  companyName: string
+  companyNamePlaceholder: string
+  contactName: string
+  contactNamePlaceholder: string
+  email: string
+  country: string
+  phone: string
+  totalToPay: string
+  payNow: string
+  redirecting: string
+  storesUpTo: string
+  perMonth: string
+  afterPaymentNote: string
+}
+
+export default function InscriptionForm({ t }: { t: Dict }) {
   const [palier, setPalier] = useState<PalierCode>('standard')
   const [dureeMois, setDureeMois] = useState<DureeMois>(1)
   const [nomEntreprise, setNomEntreprise] = useState('')
@@ -66,9 +83,9 @@ export default function InscriptionForm() {
                 {selectionne && <Check className="h-5 w-5 text-primary" />}
               </div>
               <p className="text-3xl font-bold font-heading">{formatFcfa(info.prixMensuelFcfa)}</p>
-              <p className="text-sm text-foreground-muted mb-3">/ mois</p>
+              <p className="text-sm text-foreground-muted mb-3">{t.perMonth}</p>
               <p className="text-sm text-foreground-muted">
-                Jusqu&apos;à {info.magasinsMax} magasin{info.magasinsMax > 1 ? 's' : ''}
+                {t.storesUpTo.replace('{n}', String(info.magasinsMax))}
               </p>
             </button>
           )
@@ -77,7 +94,7 @@ export default function InscriptionForm() {
 
       <div className="max-w-lg mx-auto rounded-2xl border border-surface-border bg-surface p-6 sm:p-8 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Durée</label>
+          <label className="block text-sm font-medium text-foreground mb-2">{t.duration}</label>
           <div className="flex gap-2">
             {DUREES.map((d) => (
               <button
@@ -96,31 +113,31 @@ export default function InscriptionForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Nom de l&apos;entreprise</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t.companyName}</label>
           <input
             type="text"
             value={nomEntreprise}
             onChange={(e) => setNomEntreprise(e.target.value)}
             disabled={isPending}
-            placeholder="Ma Quincaillerie SARL"
+            placeholder={t.companyNamePlaceholder}
             className="w-full rounded-md bg-background border border-surface-border text-foreground px-3 py-2 text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Nom du contact</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t.contactName}</label>
           <input
             type="text"
             value={contactNom}
             onChange={(e) => setContactNom(e.target.value)}
             disabled={isPending}
-            placeholder="Votre nom complet"
+            placeholder={t.contactNamePlaceholder}
             className="w-full rounded-md bg-background border border-surface-border text-foreground px-3 py-2 text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">E-mail</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t.email}</label>
           <input
             type="email"
             value={email}
@@ -133,7 +150,7 @@ export default function InscriptionForm() {
 
         <div className="grid grid-cols-[7rem_1fr] gap-3">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Pays</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t.country}</label>
             <select
               value={telephonePays}
               onChange={(e) => setTelephonePays(e.target.value)}
@@ -148,7 +165,7 @@ export default function InscriptionForm() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Téléphone</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t.phone}</label>
             <input
               type="tel"
               value={telephoneLocal}
@@ -164,7 +181,7 @@ export default function InscriptionForm() {
 
         <div className="flex items-center justify-between rounded-lg bg-background border border-surface-border px-4 py-3">
           <div>
-            <p className="text-sm text-foreground-muted">Total à payer</p>
+            <p className="text-sm text-foreground-muted">{t.totalToPay}</p>
             <p className="text-xl font-bold font-heading">{formatFcfa(montant)}</p>
           </div>
           <button
@@ -173,11 +190,11 @@ export default function InscriptionForm() {
             disabled={isPending || !pretAEnvoyer}
             className="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
           >
-            {isPending ? 'Redirection...' : 'Payer maintenant'}
+            {isPending ? t.redirecting : t.payNow}
           </button>
         </div>
         <p className="text-xs text-foreground-muted text-center">
-          Après confirmation du paiement, votre compte entreprise est créé sous 24h ouvrées et vos accès vous sont envoyés par e-mail.
+          {t.afterPaymentNote}
         </p>
       </div>
     </div>

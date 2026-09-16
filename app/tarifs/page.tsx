@@ -1,32 +1,41 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import LanguageSelector from '@/components/LanguageSelector'
+import { getDictionary, getLocale } from '@/dictionaries'
 import InscriptionForm from './InscriptionForm'
 
 export const metadata = {
   title: 'Tarifs — D-QUINCA',
 }
 
-export default function TarifsPage() {
+export default async function TarifsPage() {
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.tarifs
+
   return (
     <div className="bg-background min-h-screen font-sans text-foreground">
       <main>
-        <section className="py-16 lg:py-20 bg-gradient-to-br from-surface to-background">
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-surface to-background relative">
+          <div className="absolute top-4 right-4">
+            <LanguageSelector currentLang={locale} />
+          </div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
             <Link href="/decouvrir-dquinca" className="text-sm font-medium text-foreground-muted hover:text-primary flex items-center justify-center gap-2 mb-6">
-              <ArrowLeft className="w-4 h-4" /> Retour
+              <ArrowLeft className="w-4 h-4" /> {t.back}
             </Link>
             <h1 className="text-4xl md:text-6xl font-bold font-heading tracking-tight mb-6">
-              Des tarifs pensés pour <span className="text-primary">chaque quincaillerie</span>
+              {t.title}
             </h1>
             <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
-              Choisissez un palier, réglez en ligne — votre compte est activé dès que le paiement est confirmé.
+              {t.subtitle}
             </p>
           </div>
         </section>
 
         <section className="py-16 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <InscriptionForm />
+            <InscriptionForm t={t} />
           </div>
         </section>
       </main>

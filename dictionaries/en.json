@@ -1,0 +1,89 @@
+{
+  "home": {
+    "title": "D-QUINCA",
+    "tagline": "The management solution for hardware stores in Africa. Track your stock, sales and stores with ease.",
+    "subscribe": "Subscribe",
+    "discover": "Discover →",
+    "features": {
+      "stock": { "title": "Real-time stock", "desc": "Track incoming and outgoing stock, store by store, without a spreadsheet." },
+      "ventes": { "title": "Sales & purchases", "desc": "Invoice your customers, manage your suppliers, track receivables and debts." },
+      "magasins": { "title": "Multiple stores", "desc": "A consolidated view of your whole company, plus the detail per store." }
+    }
+  },
+  "decouvrir": {
+    "backHome": "Back to home",
+    "heroTitlePrefix": "How does",
+    "heroTitleSuffix": "work?",
+    "heroSubtitle": "Stock, sales, purchases, receivables/debts and cash flow — one or several stores, a single dashboard.",
+    "demoTitle": "Try the one-click demo",
+    "demoDesc": "SUNUQuinca demo company (2 stores, real purchase, sales and stock data) — choose a viewpoint.",
+    "demoError": "Demo login is unavailable right now. Please try again in a moment.",
+    "demoAdmin": "Consolidated view",
+    "demoAdminRole": "Company admin",
+    "demoGerant1": "SUNUQuinca1",
+    "demoGerant1Role": "Manager, Dakar",
+    "demoGerant2": "SUNUQuinca2",
+    "demoGerant2Role": "Manager, Thiès",
+    "demoNote": "This space is shared between all visitors — avoid entering real information.",
+    "modulesTitle": "A complete workflow, store by store",
+    "moduleStock": { "title": "Real-time stock", "desc": "Categories, items, alert thresholds and movement history." },
+    "moduleVentes": { "title": "Sales & purchases", "desc": "Cash, credit or mixed, with a receipt and margin tracking." },
+    "moduleCreances": { "title": "Receivables & debts", "desc": "Who owes you, who you owe, settled in one click." },
+    "moduleTresorerie": { "title": "Cash management", "desc": "Cash box, mobile money, bank — a complete movement journal." },
+    "cta": "Subscribe"
+  },
+  "auth": {
+    "login": {
+      "title": "D-QUINCA",
+      "desc": "Sign in to your workspace",
+      "email": "Email address",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign in",
+      "noAccount": "Account not recognized? Contact your administrator — D-QUINCA accounts are created exclusively by the Demba Solution team."
+    },
+    "adminLogin": {
+      "title": "D-QUINCA Administration",
+      "desc": "Restricted to the Demba Solution team",
+      "email": "Email address",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign in",
+      "notCompanySpace": "This is not the company sign-in space.",
+      "clientLogin": "Client sign-in"
+    },
+    "forgotPassword": {
+      "title": "Forgot your password",
+      "desc": "Enter your email address and we'll send you a link to reset your password.",
+      "email": "Email address",
+      "submit": "Send link",
+      "backToLogin": "Back to sign-in"
+    },
+    "updatePassword": {
+      "title": "New password",
+      "desc": "Choose your new password.",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Update"
+    }
+  },
+  "tarifs": {
+    "back": "Back",
+    "title": "Pricing built for every hardware store",
+    "subtitle": "Pick a tier, pay online — your account is activated as soon as payment is confirmed.",
+    "duration": "Duration",
+    "companyName": "Company name",
+    "companyNamePlaceholder": "My Hardware Store Ltd",
+    "contactName": "Contact name",
+    "contactNamePlaceholder": "Your full name",
+    "email": "Email",
+    "country": "Country",
+    "phone": "Phone",
+    "totalToPay": "Total to pay",
+    "payNow": "Pay now",
+    "redirecting": "Redirecting...",
+    "storesUpTo": "Up to {n} store(s)",
+    "perMonth": "/ month",
+    "afterPaymentNote": "Once payment is confirmed, your company account is created within 24 business hours and your access details are emailed to you."
+  }
+}
