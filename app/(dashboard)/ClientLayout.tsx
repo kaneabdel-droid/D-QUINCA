@@ -21,6 +21,7 @@ import {
   BarChart3,
   TrendingUp,
   CreditCard,
+  Settings,
   Menu,
   X,
   LogOut,
@@ -52,6 +53,7 @@ const navAdminEntreprise = [
   { key: 'comparatif', href: '/comparatif', label: 'Comparatif magasins', icon: BarChart3 },
   { key: 'rentabilite', href: '/rentabilite', label: 'Rentabilité', icon: TrendingUp },
   { key: 'abonnement', href: '/abonnement', label: 'Abonnement', icon: CreditCard },
+  { key: 'parametres', href: '/parametres', label: 'Paramètres', icon: Settings },
 ]
 
 export default function ClientLayout({
