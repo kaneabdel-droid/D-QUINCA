@@ -95,6 +95,7 @@ export async function updateSession(request: NextRequest) {
     !pathname.startsWith('/update-password') &&
     !pathname.startsWith('/auth') &&
     !pathname.startsWith('/decouvrir-dquinca') &&
+    !pathname.startsWith('/tarifs') &&
     !pathname.startsWith('/api')
   ) {
     // no user, potentially respond by redirecting the user to the login page

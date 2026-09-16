@@ -10,7 +10,7 @@ export default function HomePage() {
       </p>
       <div className="mt-6 flex items-center gap-4">
         <Link
-          href="/login"
+          href="/tarifs"
           className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover"
         >
           S&apos;abonner

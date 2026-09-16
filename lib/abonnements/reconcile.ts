@@ -12,7 +12,10 @@ import type { DureeMois, PalierCode } from './paliers'
 
 type LigneAbonnement = {
   id: string
-  entreprise_id: string
+  // null = demande publique pas encore rattachée à une entreprise (paiement
+  // avant création de compte, cf. app/tarifs/actions.ts) — le crédit du palier
+  // ne s'applique qu'une fois entreprise_id renseigné par l'admin système.
+  entreprise_id: string | null
   palier: PalierCode
   duree_mois: DureeMois
   montant_fcfa: number
@@ -55,6 +58,11 @@ async function appliquerStatut(ligne: LigneAbonnement, statutDistant: StatutProv
       .maybeSingle()
 
     if (!misAJour) return { ok: true, credite: true } // déjà traité par une exécution concurrente
+
+    // Demande publique (pas encore d'entreprise, cf. app/tarifs/actions.ts) :
+    // on s'arrête ici, la ligne payée attend d'être traitée depuis
+    // /admin/demandes — pas d'entreprise à créditer pour l'instant.
+    if (!ligne.entreprise_id) return { ok: true, credite: true }
 
     const { data: entreprise } = await supabase
       .from('entreprises')

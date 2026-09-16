@@ -102,7 +102,7 @@ export default async function DecouvrirDquincaPage({
         {/* CTA final */}
         <section className="py-16 bg-surface border-t border-surface-border text-center">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Link href="/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-hover hover:scale-105 transition-all">
+            <Link href="/tarifs" className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-hover hover:scale-105 transition-all">
               S&apos;abonner <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
