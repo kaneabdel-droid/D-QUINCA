@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateChargeButton from './CreateChargeButton'
-import DeleteChargeButton from './DeleteChargeButton'
+import ChargeRowActions from './ChargeRowActions'
 
 export default async function ChargesPage() {
   const context = await requireGerant()
@@ -18,7 +18,7 @@ export default async function ChargesPage() {
 
   const { data: charges } = await supabase
     .from('charges')
-    .select('id, categorie, libelle, montant, date_charge, recurrente')
+    .select('id, categorie, libelle, montant, date_charge, recurrente, compte_tresorerie_id')
     .eq('magasin_id', context.magasinId)
     .order('date_charge', { ascending: false })
     .limit(50)
@@ -66,7 +66,7 @@ export default async function ChargesPage() {
                 <td className="px-3 py-4 text-sm text-right text-foreground">{Number(charge.montant).toLocaleString('fr-FR')}</td>
                 <td className="px-3 py-4 text-sm text-center">{charge.recurrente ? c.yes : c.no}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <DeleteChargeButton id={charge.id} dict={dict} />
+                  <ChargeRowActions charge={charge} comptes={comptes ?? []} dict={dict} />
                 </td>
               </tr>
             ))}

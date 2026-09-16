@@ -28,6 +28,23 @@ export async function addFournisseur(formData: FormData): Promise<ActionResult> 
   return { success: true }
 }
 
+export async function updateFournisseur(id: string, nom: string, telephone: string, adresse: string): Promise<ActionResult> {
+  await requireGerant()
+  const supabase = await createClient()
+
+  if (!nom.trim()) return { error: 'Le nom est requis' }
+
+  const { error } = await supabase
+    .from('fournisseurs')
+    .update({ nom: nom.trim(), telephone: telephone.trim() || null, adresse: adresse.trim() || null })
+    .eq('id', id)
+  if (error) return { error: error.message }
+
+  revalidatePath('/fournisseurs')
+  revalidatePath('/achats')
+  return { success: true }
+}
+
 export async function deleteFournisseur(id: string): Promise<ActionResult> {
   await requireGerant()
   const supabase = await createClient()

@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateFournisseurButton from './CreateFournisseurButton'
-import DeleteFournisseurButton from './DeleteFournisseurButton'
+import FournisseurRowActions from './FournisseurRowActions'
 
 export default async function FournisseursPage() {
   await requireGerant()
@@ -47,7 +47,7 @@ export default async function FournisseursPage() {
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.telephone || '-'}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.adresse || '-'}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <DeleteFournisseurButton id={fournisseur.id} nom={fournisseur.nom} dict={dict} />
+                  <FournisseurRowActions fournisseur={fournisseur} dict={dict} />
                 </td>
               </tr>
             ))}

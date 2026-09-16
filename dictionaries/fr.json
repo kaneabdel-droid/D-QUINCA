@@ -127,7 +127,9 @@
     "empty": "Aucun client",
     "newButton": "Nouveau client",
     "newTitle": "Nouveau client",
+    "editTitle": "Modifier le client",
     "confirmDelete": "Supprimer le client \"{nom}\" ?",
+    "updated": "Client modifié",
     "deleted": "Client supprimé"
   },
   "fournisseurs": {
@@ -136,7 +138,9 @@
     "empty": "Aucun fournisseur",
     "newButton": "Nouveau fournisseur",
     "newTitle": "Nouveau fournisseur",
+    "editTitle": "Modifier le fournisseur",
     "confirmDelete": "Supprimer le fournisseur \"{nom}\" ?",
+    "updated": "Fournisseur modifié",
     "deleted": "Fournisseur supprimé"
   },
   "stock": {
@@ -282,6 +286,7 @@
     "thisMonth": "Ce mois-ci :",
     "newButton": "Nouvelle charge",
     "newTitle": "Nouvelle charge",
+    "editTitle": "Modifier la charge",
     "colDate": "Date",
     "colCategorie": "Catégorie",
     "colLibelle": "Libellé",
@@ -301,6 +306,7 @@
     "compteAucun": "Aucun",
     "recurrenteCheckbox": "Charge récurrente",
     "confirmDelete": "Supprimer cette charge ?",
+    "updated": "Charge modifiée",
     "deleted": "Charge supprimée"
   },
   "comparatif": {

@@ -127,7 +127,9 @@
     "empty": "No customers",
     "newButton": "New customer",
     "newTitle": "New customer",
+    "editTitle": "Edit customer",
     "confirmDelete": "Delete customer \"{nom}\"?",
+    "updated": "Customer updated",
     "deleted": "Customer deleted"
   },
   "fournisseurs": {
@@ -136,7 +138,9 @@
     "empty": "No suppliers",
     "newButton": "New supplier",
     "newTitle": "New supplier",
+    "editTitle": "Edit supplier",
     "confirmDelete": "Delete supplier \"{nom}\"?",
+    "updated": "Supplier updated",
     "deleted": "Supplier deleted"
   },
   "stock": {
@@ -282,6 +286,7 @@
     "thisMonth": "This month:",
     "newButton": "New expense",
     "newTitle": "New expense",
+    "editTitle": "Edit expense",
     "colDate": "Date",
     "colCategorie": "Category",
     "colLibelle": "Description",
@@ -301,6 +306,7 @@
     "compteAucun": "None",
     "recurrenteCheckbox": "Recurring expense",
     "confirmDelete": "Delete this expense?",
+    "updated": "Expense updated",
     "deleted": "Expense deleted"
   },
   "comparatif": {
