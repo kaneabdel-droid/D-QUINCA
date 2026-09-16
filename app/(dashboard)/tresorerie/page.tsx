@@ -4,6 +4,7 @@ import { Wallet, Landmark, Smartphone } from 'lucide-react'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
 import AddEcritureButton from './AddEcritureButton'
+import EcritureRowActions from './EcritureRowActions'
 
 const iconParType: Record<string, typeof Wallet> = {
   caisse: Wallet,
@@ -16,6 +17,7 @@ export default async function TresoreriePage() {
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.tresorerie
+  const c = dict.common
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
@@ -25,7 +27,7 @@ export default async function TresoreriePage() {
 
   const { data: mouvements } = await supabase
     .from('journal_tresorerie')
-    .select('id, compte_tresorerie_id, type_mouvement, montant, categorie, motif, date_mouvement')
+    .select('id, compte_tresorerie_id, type_mouvement, montant, categorie, motif, date_mouvement, reference_type')
     .eq('magasin_id', context.magasinId)
     .order('date_mouvement', { ascending: false })
     .limit(50)
@@ -84,6 +86,9 @@ export default async function TresoreriePage() {
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCategorie}</th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colMotif}</th>
               <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMontant}</th>
+              <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                <span className="sr-only">{c.actions}</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -98,11 +103,18 @@ export default async function TresoreriePage() {
                 <td className={`px-3 py-4 text-sm text-right font-medium ${m.type_mouvement === 'entree' ? 'text-success' : 'text-danger'}`}>
                   {m.type_mouvement === 'entree' ? '+' : '-'}{Number(m.montant).toLocaleString('fr-FR')}
                 </td>
+                <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                  {m.reference_type ? (
+                    <span className="text-xs text-foreground-muted">{t.linkedNotice}</span>
+                  ) : (
+                    <EcritureRowActions ecriture={m} comptes={comptes ?? []} dict={dict} />
+                  )}
+                </td>
               </tr>
             ))}
             {(mouvements ?? []).length === 0 && (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMouvements}</td>
+                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMouvements}</td>
               </tr>
             )}
           </tbody>

@@ -2,12 +2,14 @@ import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateAchatButton from './CreateAchatButton'
+import AnnulerAchatButton from './AnnulerAchatButton'
 
 export default async function AchatsPage() {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.achats
+  const c = dict.common
 
   const { data: articles } = await supabase
     .from('articles')
@@ -63,6 +65,9 @@ export default async function AchatsPage() {
               <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colTotal}</th>
               <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colPaye}</th>
               <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colStatut}</th>
+              <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                <span className="sr-only">{c.actions}</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -80,11 +85,14 @@ export default async function AchatsPage() {
                     {achat.statut}
                   </span>
                 </td>
+                <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                  {achat.statut === 'validee' && <AnnulerAchatButton achatId={achat.id} dict={dict} />}
+                </td>
               </tr>
             ))}
             {(achats ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
+                <td colSpan={7} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>

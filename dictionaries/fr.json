@@ -242,7 +242,10 @@
     "montantPayeLabel": "Montant payé",
     "validate": "Valider la vente",
     "saved": "Vente enregistrée",
-    "downloadReceipt": "Télécharger le reçu"
+    "downloadReceipt": "Télécharger le reçu",
+    "cancelButton": "Annuler",
+    "confirmCancel": "Annuler cette vente ? Le stock sera restauré et l'encaissement retiré de la trésorerie.",
+    "cancelled": "Vente annulée"
   },
   "achats": {
     "title": "Achats",
@@ -258,7 +261,10 @@
     "unspecified": "Non spécifié",
     "fournisseurLabel": "Fournisseur",
     "saved": "Achat enregistré",
-    "validate": "Valider l'achat"
+    "validate": "Valider l'achat",
+    "cancelButton": "Annuler",
+    "confirmCancel": "Annuler cet achat ? Le stock entré sera retiré et le paiement retiré de la trésorerie.",
+    "cancelled": "Achat annulé"
   },
   "creances": {
     "title": "Créances",
@@ -318,7 +324,12 @@
     "categorieLabel": "Catégorie",
     "categorieVirement": "Virement",
     "categorieAutre": "Autre",
-    "motifLabel": "Motif"
+    "motifLabel": "Motif",
+    "editEcritureTitle": "Modifier l'écriture",
+    "confirmDeleteEcriture": "Supprimer cette écriture ?",
+    "ecritureUpdated": "Écriture modifiée",
+    "ecritureDeleted": "Écriture supprimée",
+    "linkedNotice": "Liée — gérer depuis l'origine"
   },
   "charges": {
     "title": "Charges",

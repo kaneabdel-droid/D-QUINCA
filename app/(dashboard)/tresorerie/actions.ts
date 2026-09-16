@@ -58,3 +58,54 @@ export async function addEcritureTresorerie(formData: FormData): Promise<ActionR
   revalidatePath('/tresorerie')
   return { success: true }
 }
+
+// Modification/suppression réservées aux écritures manuelles (reference_type
+// null) : une écriture générée par une vente/un achat/une charge/un règlement
+// ne doit être corrigée qu'en annulant son origine (annulerVente/annulerAchat/
+// deleteCharge/...), jamais en la modifiant isolément — sinon le montant de
+// l'écriture divergerait silencieusement du document qui l'a produite.
+export async function updateEcritureTresorerie(
+  id: string,
+  compteId: string,
+  typeMouvement: string,
+  montant: number,
+  categorie: string,
+  motif: string
+): Promise<ActionResult> {
+  await requireGerant()
+  const supabase = await createClient()
+
+  if (!compteId) return { error: 'Un compte est requis' }
+  if (montant <= 0) return { error: 'Le montant doit être positif' }
+
+  const { data: existante } = await supabase.from('journal_tresorerie').select('reference_type').eq('id', id).single()
+  if (existante?.reference_type) {
+    return { error: 'Cette écriture est liée à une vente, un achat, une charge ou un règlement — modifiez-la depuis son origine.' }
+  }
+
+  const { error } = await supabase
+    .from('journal_tresorerie')
+    .update({ compte_tresorerie_id: compteId, type_mouvement: typeMouvement, montant, categorie, motif: motif.trim() || null })
+    .eq('id', id)
+    .is('reference_type', null)
+  if (error) return { error: error.message }
+
+  revalidatePath('/tresorerie')
+  return { success: true }
+}
+
+export async function deleteEcritureTresorerie(id: string): Promise<ActionResult> {
+  await requireGerant()
+  const supabase = await createClient()
+
+  const { data: existante } = await supabase.from('journal_tresorerie').select('reference_type').eq('id', id).single()
+  if (existante?.reference_type) {
+    return { error: 'Cette écriture est liée à une vente, un achat, une charge ou un règlement — supprimez-la depuis son origine.' }
+  }
+
+  const { error } = await supabase.from('journal_tresorerie').delete().eq('id', id).is('reference_type', null)
+  if (error) return { error: error.message }
+
+  revalidatePath('/tresorerie')
+  return { success: true }
+}

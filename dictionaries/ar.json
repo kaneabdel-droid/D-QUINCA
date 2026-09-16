@@ -242,7 +242,10 @@
     "montantPayeLabel": "المبلغ المدفوع",
     "validate": "تأكيد البيع",
     "saved": "تم تسجيل البيع",
-    "downloadReceipt": "تحميل الإيصال"
+    "downloadReceipt": "تحميل الإيصال",
+    "cancelButton": "إلغاء",
+    "confirmCancel": "إلغاء هذا البيع؟ سيتم استرجاع المخزون وسحب المبلغ المحصَّل من الخزينة.",
+    "cancelled": "تم إلغاء البيع"
   },
   "achats": {
     "title": "المشتريات",
@@ -258,7 +261,10 @@
     "unspecified": "غير محدد",
     "fournisseurLabel": "المورد",
     "saved": "تم تسجيل الشراء",
-    "validate": "تأكيد الشراء"
+    "validate": "تأكيد الشراء",
+    "cancelButton": "إلغاء",
+    "confirmCancel": "إلغاء هذا الشراء؟ سيتم سحب المخزون الداخل وإزالة الدفعة من الخزينة.",
+    "cancelled": "تم إلغاء الشراء"
   },
   "creances": {
     "title": "الديون المستحقة",
@@ -318,7 +324,12 @@
     "categorieLabel": "الفئة",
     "categorieVirement": "تحويل",
     "categorieAutre": "أخرى",
-    "motifLabel": "السبب"
+    "motifLabel": "السبب",
+    "editEcritureTitle": "تعديل القيد",
+    "confirmDeleteEcriture": "حذف هذا القيد؟",
+    "ecritureUpdated": "تم تعديل القيد",
+    "ecritureDeleted": "تم حذف القيد",
+    "linkedNotice": "مرتبط — أدره من مصدره"
   },
   "charges": {
     "title": "المصاريف",

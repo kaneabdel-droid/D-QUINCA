@@ -242,7 +242,10 @@
     "montantPayeLabel": "Amount paid",
     "validate": "Confirm sale",
     "saved": "Sale recorded",
-    "downloadReceipt": "Download receipt"
+    "downloadReceipt": "Download receipt",
+    "cancelButton": "Cancel",
+    "confirmCancel": "Cancel this sale? Stock will be restored and the payment removed from cash management.",
+    "cancelled": "Sale cancelled"
   },
   "achats": {
     "title": "Purchases",
@@ -258,7 +261,10 @@
     "unspecified": "Not specified",
     "fournisseurLabel": "Supplier",
     "saved": "Purchase recorded",
-    "validate": "Confirm purchase"
+    "validate": "Confirm purchase",
+    "cancelButton": "Cancel",
+    "confirmCancel": "Cancel this purchase? The incoming stock will be reversed and the payment removed from cash management.",
+    "cancelled": "Purchase cancelled"
   },
   "creances": {
     "title": "Receivables",
@@ -318,7 +324,12 @@
     "categorieLabel": "Category",
     "categorieVirement": "Transfer",
     "categorieAutre": "Other",
-    "motifLabel": "Reason"
+    "motifLabel": "Reason",
+    "editEcritureTitle": "Edit entry",
+    "confirmDeleteEcriture": "Delete this entry?",
+    "ecritureUpdated": "Entry updated",
+    "ecritureDeleted": "Entry deleted",
+    "linkedNotice": "Linked — manage from its origin"
   },
   "charges": {
     "title": "Expenses",

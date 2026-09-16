@@ -35,3 +35,23 @@ export async function creerAchat(
   revalidatePath('/tresorerie')
   return { success: true, achatId: data as string }
 }
+
+export async function annulerAchat(achatId: string): Promise<ActionResult> {
+  await requireGerant()
+  const supabase = await createClient()
+
+  // Réconciliation complète (stock, dette, trésorerie) dans la RPC
+  // annuler_achat (migration 18) — voir son commentaire pour le détail des
+  // garde-fous (dette déjà réglée, stock déjà revendu).
+  const { error } = await supabase.rpc('annuler_achat', { p_achat_id: achatId })
+  if (error) return { error: error.message }
+
+  revalidatePath('/achats')
+  revalidatePath('/stock')
+  revalidatePath('/dettes')
+  revalidatePath('/tresorerie')
+  revalidatePath('/comparatif')
+  revalidatePath('/rentabilite')
+  revalidatePath('/dashboard')
+  return { success: true }
+}

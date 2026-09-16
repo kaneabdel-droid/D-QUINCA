@@ -3,6 +3,7 @@ import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateVenteButton from './CreateVenteButton'
 import ReceiptPdfButton from './ReceiptPdfButton'
+import AnnulerVenteButton from './AnnulerVenteButton'
 
 export default async function VentesPage() {
   const context = await requireGerant()
@@ -91,13 +92,16 @@ export default async function VentesPage() {
                   </span>
                 </td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <ReceiptPdfButton
-                    vente={vente}
-                    entrepriseNom={context.entrepriseNom}
-                    magasinNom={context.magasinNom ?? ''}
-                    clientNom={nomClient(vente.clients) ?? null}
-                    title={t.downloadReceipt}
-                  />
+                  <div className="flex items-center justify-end gap-1">
+                    <ReceiptPdfButton
+                      vente={vente}
+                      entrepriseNom={context.entrepriseNom}
+                      magasinNom={context.magasinNom ?? ''}
+                      clientNom={nomClient(vente.clients) ?? null}
+                      title={t.downloadReceipt}
+                    />
+                    {vente.statut === 'validee' && <AnnulerVenteButton venteId={vente.id} dict={dict} />}
+                  </div>
                 </td>
               </tr>
             ))}

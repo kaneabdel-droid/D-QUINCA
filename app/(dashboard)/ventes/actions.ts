@@ -40,12 +40,18 @@ export async function annulerVente(venteId: string): Promise<ActionResult> {
   await requireGerant()
   const supabase = await createClient()
 
-  // Annulation simple par changement de statut : ne restaure pas le stock ni la
-  // trésorerie automatiquement (une vraie contre-écriture serait une évolution
-  // future) — signalé comme telle dans la confirmation côté client.
-  const { error } = await supabase.from('ventes').update({ statut: 'annulee' }).eq('id', venteId)
+  // Toute la logique de réconciliation (stock, créance, trésorerie) vit dans
+  // la RPC annuler_vente (migration 18) — jamais un simple changement de
+  // statut, qui laisserait le stock/la trésorerie/les créances faussés.
+  const { error } = await supabase.rpc('annuler_vente', { p_vente_id: venteId })
   if (error) return { error: error.message }
 
   revalidatePath('/ventes')
+  revalidatePath('/stock')
+  revalidatePath('/creances')
+  revalidatePath('/tresorerie')
+  revalidatePath('/comparatif')
+  revalidatePath('/rentabilite')
+  revalidatePath('/dashboard')
   return { success: true }
 }
