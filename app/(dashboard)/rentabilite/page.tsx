@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireAdminEntreprise } from '@/lib/auth/getCurrentUserContext'
 import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { getDictionary, getLocale } from '@/dictionaries'
 
 type RentabiliteRow = { ca: number; cout: number; marge_brute: number; charges: number; resultat_net: number }
 type ArticleRow = { article_id: string; designation: string; quantite: number; ca: number; cout: number; marge: number }
@@ -8,6 +9,8 @@ type ArticleRow = { article_id: string; designation: string; quantite: number; c
 export default async function RentabilitePage() {
   const context = await requireAdminEntreprise()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.rentabilite
 
   const dateFin = new Date()
   const dateDebut = new Date()
@@ -59,16 +62,16 @@ export default async function RentabilitePage() {
   const topArticles = Array.from(articlesMap.values()).sort((a, b) => b.marge - a.marge).slice(0, 10)
 
   const cards = [
-    { label: "Chiffre d'affaires", value: totaux.ca, icon: DollarSign, color: 'text-primary' },
-    { label: 'Marge brute', value: totaux.marge_brute, icon: TrendingUp, color: 'text-success' },
-    { label: 'Charges', value: totaux.charges, icon: TrendingDown, color: 'text-danger' },
-    { label: 'Résultat net', value: totaux.resultat_net, icon: Wallet, color: totaux.resultat_net >= 0 ? 'text-success' : 'text-danger' },
+    { label: t.cardCa, value: totaux.ca, icon: DollarSign, color: 'text-primary' },
+    { label: t.cardMarge, value: totaux.marge_brute, icon: TrendingUp, color: 'text-success' },
+    { label: t.cardCharges, value: totaux.charges, icon: TrendingDown, color: 'text-danger' },
+    { label: t.cardResultatNet, value: totaux.resultat_net, icon: Wallet, color: totaux.resultat_net >= 0 ? 'text-success' : 'text-danger' },
   ]
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-heading text-foreground mb-2">Rentabilité</h1>
-      <p className="text-sm text-foreground-muted mb-6">{context.entrepriseNom} — 30 derniers jours</p>
+      <h1 className="text-2xl font-bold font-heading text-foreground mb-2">{t.title}</h1>
+      <p className="text-sm text-foreground-muted mb-6">{context.entrepriseNom} — {t.period}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map(({ label, value, icon: Icon, color }) => (
@@ -84,16 +87,16 @@ export default async function RentabilitePage() {
         ))}
       </div>
 
-      <h2 className="text-lg font-semibold text-foreground mb-4">Par magasin</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t.byStore}</h2>
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface mb-10">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Magasin</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">CA</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Marge brute</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Charges</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Résultat net</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colMagasin}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colCa}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMarge}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colCharges}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colResultatNet}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -110,22 +113,22 @@ export default async function RentabilitePage() {
             ))}
             {parMagasin.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">Aucun magasin</td>
+                <td colSpan={5} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMagasins}</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <h2 className="text-lg font-semibold text-foreground mb-4">Top 10 articles par marge</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t.topArticles}</h2>
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Article</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Qté vendue</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">CA</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Marge</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colArticle}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colQuantiteVendue}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colCaShort}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMargeShort}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -139,7 +142,7 @@ export default async function RentabilitePage() {
             ))}
             {topArticles.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-sm text-foreground-muted">Aucune vente sur la période</td>
+                <td colSpan={4} className="py-8 text-center text-sm text-foreground-muted">{t.emptyVentes}</td>
               </tr>
             )}
           </tbody>

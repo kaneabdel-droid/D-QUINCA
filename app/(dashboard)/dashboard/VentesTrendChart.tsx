@@ -14,7 +14,7 @@ function formatMontant(value: unknown) {
   return Number(value ?? 0).toLocaleString('fr-FR')
 }
 
-export default function VentesTrendChart({ data }: { data: Point[] }) {
+export default function VentesTrendChart({ data, labelVentes, labelProjection }: { data: Point[]; labelVentes?: string; labelProjection?: string }) {
   return (
     <div style={{ width: '100%', height: 300 }}>
       <ResponsiveContainer>
@@ -40,8 +40,8 @@ export default function VentesTrendChart({ data }: { data: Point[] }) {
             labelStyle={{ color: 'var(--foreground)', fontWeight: 600 }}
           />
           <Legend wrapperStyle={{ fontSize: 13, color: 'var(--foreground-muted)' }} />
-          <Area type="monotone" dataKey="historique" name="Ventes" stroke={COULEUR} strokeWidth={2} fill="url(#ventesGradient)" connectNulls={false} dot={false} />
-          <Area type="monotone" dataKey="projection" name="Projection" stroke={COULEUR} strokeWidth={2} strokeDasharray="5 4" fill="transparent" connectNulls dot={false} />
+          <Area type="monotone" dataKey="historique" name={labelVentes ?? 'Ventes'} stroke={COULEUR} strokeWidth={2} fill="url(#ventesGradient)" connectNulls={false} dot={false} />
+          <Area type="monotone" dataKey="projection" name={labelProjection ?? 'Projection'} stroke={COULEUR} strokeWidth={2} strokeDasharray="5 4" fill="transparent" connectNulls dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

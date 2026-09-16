@@ -3,11 +3,14 @@ import { createClient } from '@/utils/supabase/server'
 import { getCurrentUserContext } from '@/lib/auth/getCurrentUserContext'
 import { projeterCourtTerme, type PointJournalier } from '@/lib/analytics/projections'
 import { AlertTriangle, DollarSign, HandCoins, ShoppingCart, TrendingUp, Wallet } from 'lucide-react'
+import { getDictionary, getLocale } from '@/dictionaries'
 import VentesTrendChart from './VentesTrendChart'
 
 export default async function DashboardPage() {
   const context = await getCurrentUserContext()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.dashboard
 
   const dateFin = new Date()
   const dateDebut = new Date()
@@ -57,14 +60,14 @@ export default async function DashboardPage() {
     const totalCreances = (creances ?? []).reduce((sum, c) => sum + Number(c.montant_restant), 0)
 
     const cards = [
-      { label: 'Ventes du jour', value: ventesAujourdhui.toLocaleString('fr-FR'), icon: ShoppingCart },
-      { label: 'Créances en cours', value: totalCreances.toLocaleString('fr-FR'), icon: HandCoins },
-      { label: 'Articles en stock bas', value: nbStockBas, icon: AlertTriangle },
+      { label: t.ventesJour, value: ventesAujourdhui.toLocaleString('fr-FR'), icon: ShoppingCart },
+      { label: t.creancesEnCours, value: totalCreances.toLocaleString('fr-FR'), icon: HandCoins },
+      { label: t.articlesStockBas, value: nbStockBas, icon: AlertTriangle },
     ]
 
     return (
       <div>
-        <h1 className="text-2xl font-bold font-heading mb-2">Tableau de bord</h1>
+        <h1 className="text-2xl font-bold font-heading mb-2">{t.title}</h1>
         <p className="text-foreground-muted mb-6">{context.magasinNom}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -78,11 +81,11 @@ export default async function DashboardPage() {
         </div>
 
         <div className="bg-surface rounded-xl border border-surface-border p-4 sm:p-6">
-          <h2 className="font-semibold text-foreground mb-4">Évolution des ventes (30 derniers jours + projection 7 jours)</h2>
+          <h2 className="font-semibold text-foreground mb-4">{t.evolutionVentes}</h2>
           {historique.length > 0 ? (
-            <VentesTrendChart data={chartData} />
+            <VentesTrendChart data={chartData} labelVentes={t.chartVentes} labelProjection={t.chartProjection} />
           ) : (
-            <p className="text-sm text-foreground-muted">Aucune vente enregistrée sur la période.</p>
+            <p className="text-sm text-foreground-muted">{t.noVentes}</p>
           )}
         </div>
       </div>
@@ -111,16 +114,16 @@ export default async function DashboardPage() {
   }
 
   const cards = [
-    { label: "CA (30 jours)", value: totalCa.toLocaleString('fr-FR'), icon: DollarSign },
-    { label: 'Marge brute (30 jours)', value: totalMarge.toLocaleString('fr-FR'), icon: TrendingUp },
-    { label: 'Créances en cours', value: totalCreancesEntreprise.toLocaleString('fr-FR'), icon: HandCoins },
-    { label: 'Dettes en cours', value: totalDettesEntreprise.toLocaleString('fr-FR'), icon: Wallet },
+    { label: t.ca30j, value: totalCa.toLocaleString('fr-FR'), icon: DollarSign },
+    { label: t.marge30j, value: totalMarge.toLocaleString('fr-FR'), icon: TrendingUp },
+    { label: t.creancesEnCours, value: totalCreancesEntreprise.toLocaleString('fr-FR'), icon: HandCoins },
+    { label: t.dettesEnCours, value: totalDettesEntreprise.toLocaleString('fr-FR'), icon: Wallet },
   ]
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-heading mb-2">Tableau de bord</h1>
-      <p className="text-foreground-muted mb-6">Vue consolidée — {context.entrepriseNom}</p>
+      <h1 className="text-2xl font-bold font-heading mb-2">{t.title}</h1>
+      <p className="text-foreground-muted mb-6">{t.vueConsolidee} {context.entrepriseNom}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map(({ label, value, icon: Icon }) => (
@@ -134,10 +137,10 @@ export default async function DashboardPage() {
 
       <div className="flex flex-wrap gap-3">
         <Link href="/comparatif" className="rounded-md bg-surface border border-surface-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background">
-          Voir le comparatif magasins →
+          {t.voirComparatif}
         </Link>
         <Link href="/rentabilite" className="rounded-md bg-surface border border-surface-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background">
-          Voir la rentabilité détaillée →
+          {t.voirRentabilite}
         </Link>
       </div>
     </div>

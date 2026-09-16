@@ -17,7 +17,7 @@ function formatMontant(value: unknown) {
   return Number(value ?? 0).toLocaleString('fr-FR')
 }
 
-export default function ComparatifChart({ data }: { data: Ligne[] }) {
+export default function ComparatifChart({ data, labelCa, labelMarge }: { data: Ligne[]; labelCa?: string; labelMarge?: string }) {
   return (
     <div style={{ width: '100%', height: 360 }}>
       <ResponsiveContainer>
@@ -31,10 +31,10 @@ export default function ComparatifChart({ data }: { data: Ligne[] }) {
             labelStyle={{ color: 'var(--foreground)', fontWeight: 600 }}
           />
           <Legend wrapperStyle={{ fontSize: 13, color: 'var(--foreground-muted)' }} />
-          <Bar dataKey="ca" name="Chiffre d'affaires" fill={COULEUR_CA} radius={[4, 4, 0, 0]} maxBarSize={48}>
+          <Bar dataKey="ca" name={labelCa ?? "Chiffre d'affaires"} fill={COULEUR_CA} radius={[4, 4, 0, 0]} maxBarSize={48}>
             <LabelList dataKey="ca" position="top" formatter={formatMontant} style={{ fill: 'var(--foreground-muted)', fontSize: 11 }} />
           </Bar>
-          <Bar dataKey="marge_brute" name="Marge brute" fill={COULEUR_MARGE} radius={[4, 4, 0, 0]} maxBarSize={48}>
+          <Bar dataKey="marge_brute" name={labelMarge ?? 'Marge brute'} fill={COULEUR_MARGE} radius={[4, 4, 0, 0]} maxBarSize={48}>
             <LabelList dataKey="marge_brute" position="top" formatter={formatMontant} style={{ fill: 'var(--foreground-muted)', fontSize: 11 }} />
           </Bar>
         </BarChart>
