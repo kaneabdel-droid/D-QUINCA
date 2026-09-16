@@ -143,6 +143,76 @@ body {
   --sidebar-ring: var(--primary);
 }
 
+.theme-atelier {
+  /* Atelier - gris acier / orange industriel, ambiance quincaillerie/outillage */
+  --background: #F2F1EE;
+  --surface: #FFFFFF;
+  --surface-border: #DEDBD3;
+  --foreground: #22201C;
+  --foreground-muted: #5C574E;
+  --sidebar: #EDEAE3;
+
+  --primary: #C2540C;
+  --primary-hover: #A8460A;
+  --secondary: #52565C;
+  --danger: #C0392B;
+  --success: #3D8A5A;
+  --warning: #C9971F;
+  --info: #3E6E93;
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --muted: var(--background);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--background);
+  --accent-foreground: var(--foreground);
+  --border: var(--surface-border);
+  --input: var(--surface-border);
+  --ring: var(--primary);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-accent: var(--background);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--surface-border);
+  --sidebar-ring: var(--primary);
+}
+
+.theme-forge {
+  /* Forge - charcoal profond / cuivre, variante sombre de la même famille industrielle */
+  --background: #1C1B19;
+  --surface: #242220;
+  --surface-border: #38352F;
+  --foreground: #EDE9E2;
+  --foreground-muted: #A69E90;
+  --sidebar: #201E1B;
+
+  --primary: #B5652E;
+  --primary-hover: #CC7539;
+  --secondary: #8A8579;
+  --danger: #D9534F;
+  --success: #5FA97A;
+  --warning: #D9A441;
+  --info: #5B8FB0;
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --muted: var(--surface);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--surface);
+  --accent-foreground: var(--foreground);
+  --border: var(--surface-border);
+  --input: var(--surface-border);
+  --ring: var(--primary);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-accent: var(--surface);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--surface-border);
+  --sidebar-ring: var(--primary);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
