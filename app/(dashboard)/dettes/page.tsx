@@ -1,10 +1,14 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerDetteButton from './ReglerDetteButton'
 
 export default async function DettesPage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.dettes
+  const c = dict.common
 
   const { data: dettes } = await supabase
     .from('dettes')
@@ -39,9 +43,9 @@ export default async function DettesPage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Dettes</h2>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
           <p className="mt-2 text-sm text-foreground-muted">
-            Total restant dû : <strong className="text-foreground">{totalRestant.toLocaleString('fr-FR')}</strong>
+            {t.totalRestant} <strong className="text-foreground">{totalRestant.toLocaleString('fr-FR')}</strong>
           </p>
         </div>
       </div>
@@ -50,13 +54,13 @@ export default async function DettesPage() {
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Fournisseur</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Initial</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Restant</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Échéance</th>
-              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">Statut</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colFournisseur}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colInitial}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colRestant}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colEcheance}</th>
+              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colStatut}</th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{c.actions}</span>
               </th>
             </tr>
           </thead>
@@ -72,14 +76,14 @@ export default async function DettesPage() {
                 </td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                   {d.statut !== 'soldee' && (
-                    <ReglerDetteButton detteId={d.id} montantRestant={Number(d.montant_restant)} comptes={comptes ?? []} />
+                    <ReglerDetteButton detteId={d.id} montantRestant={Number(d.montant_restant)} comptes={comptes ?? []} dict={dict} />
                   )}
                 </td>
               </tr>
             ))}
             {(dettes ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">Aucune dette</td>
+                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>

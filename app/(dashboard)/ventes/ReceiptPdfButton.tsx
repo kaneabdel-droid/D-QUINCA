@@ -27,11 +27,12 @@ type LigneVente = {
 
 type JsPDFAvecAutoTable = InstanceType<typeof jsPDF> & { lastAutoTable?: { finalY: number } }
 
-export default function ReceiptPdfButton({ vente, entrepriseNom, magasinNom, clientNom }: {
+export default function ReceiptPdfButton({ vente, entrepriseNom, magasinNom, clientNom, title }: {
   vente: Vente
   entrepriseNom: string
   magasinNom: string
   clientNom: string | null
+  title?: string
 }) {
   const [loading, setLoading] = useState(false)
 
@@ -120,7 +121,7 @@ export default function ReceiptPdfButton({ vente, entrepriseNom, magasinNom, cli
   }
 
   return (
-    <button onClick={generatePdf} disabled={loading} className="text-foreground-muted hover:text-primary p-1 disabled:opacity-50" title="Télécharger le reçu">
+    <button onClick={generatePdf} disabled={loading} className="text-foreground-muted hover:text-primary p-1 disabled:opacity-50" title={title ?? 'Télécharger le reçu'}>
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
     </button>
   )

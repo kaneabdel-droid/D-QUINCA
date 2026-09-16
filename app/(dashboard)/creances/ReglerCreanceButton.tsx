@@ -3,11 +3,14 @@
 import { useState } from 'react'
 import { HandCoins } from 'lucide-react'
 import { toast } from 'sonner'
+import type { Dictionary } from '@/dictionaries'
 import { reglerCreance } from './actions'
 
 type Compte = { id: string; nom: string }
 
-export default function ReglerCreanceButton({ creanceId, montantRestant, comptes }: { creanceId: string; montantRestant: number; comptes: Compte[] }) {
+export default function ReglerCreanceButton({ creanceId, montantRestant, comptes, dict }: { creanceId: string; montantRestant: number; comptes: Compte[]; dict: Dictionary }) {
+  const t = dict.creances
+  const c = dict.common
   const [isOpen, setIsOpen] = useState(false)
   const [montant, setMontant] = useState(montantRestant)
   const [compteId, setCompteId] = useState(comptes[0]?.id ?? '')
@@ -23,14 +26,14 @@ export default function ReglerCreanceButton({ creanceId, montantRestant, comptes
     if (res?.error) setError(res.error)
     else {
       setIsOpen(false)
-      toast.success('Créance réglée')
+      toast.success(t.settled)
     }
   }
 
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-medium text-white hover:bg-primary-hover">
-        <HandCoins className="h-3 w-3" /> Régler
+        <HandCoins className="h-3 w-3" /> {t.reglerButton}
       </button>
 
       {isOpen && (
@@ -40,21 +43,21 @@ export default function ReglerCreanceButton({ creanceId, montantRestant, comptes
 
             <div className="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm border border-surface-border">
               <div className="bg-surface px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                <h3 className="text-lg font-semibold leading-6 text-foreground mb-4">Régler la créance</h3>
+                <h3 className="text-lg font-semibold leading-6 text-foreground mb-4">{t.reglerTitle}</h3>
                 <form onSubmit={handleSubmit} id={`regler-creance-${creanceId}`} className="space-y-4">
                   {error && <p className="text-xs text-danger">{error}</p>}
-                  <p className="text-sm text-foreground-muted">Reste dû : <strong className="text-foreground">{montantRestant.toLocaleString('fr-FR')}</strong></p>
+                  <p className="text-sm text-foreground-muted">{t.resteDu} <strong className="text-foreground">{montantRestant.toLocaleString('fr-FR')}</strong></p>
                   <div>
-                    <label className="block text-sm font-medium text-foreground">Compte de trésorerie</label>
+                    <label className="block text-sm font-medium text-foreground">{c.compteTresorerie}</label>
                     <select value={compteId} onChange={(e) => setCompteId(e.target.value)} required className="mt-1 block w-full rounded-md bg-background border border-surface-border text-foreground px-3 py-2">
-                      <option value="" disabled>Sélectionner</option>
-                      {comptes.map((c) => (
-                        <option key={c.id} value={c.id}>{c.nom}</option>
+                      <option value="" disabled>{c.select}</option>
+                      {comptes.map((cpt) => (
+                        <option key={cpt.id} value={cpt.id}>{cpt.nom}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground">Montant réglé</label>
+                    <label className="block text-sm font-medium text-foreground">{t.montantRegle}</label>
                     <input
                       type="number"
                       step="0.01"
@@ -75,14 +78,14 @@ export default function ReglerCreanceButton({ creanceId, montantRestant, comptes
                   disabled={loading || comptes.length === 0}
                   className="inline-flex w-full justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover sm:ml-3 sm:w-auto disabled:opacity-50"
                 >
-                  {loading ? 'Enregistrement...' : 'Confirmer'}
+                  {loading ? c.saving : c.confirm}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   className="mt-3 inline-flex w-full justify-center rounded-md bg-surface px-3 py-2 text-sm font-semibold text-foreground shadow-sm ring-1 ring-inset ring-surface-border hover:bg-background sm:mt-0 sm:w-auto"
                 >
-                  Annuler
+                  {c.cancel}
                 </button>
               </div>
             </div>

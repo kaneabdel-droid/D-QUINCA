@@ -1,10 +1,14 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerCreanceButton from './ReglerCreanceButton'
 
 export default async function CreancesPage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.creances
+  const c = dict.common
 
   const { data: creances } = await supabase
     .from('creances')
@@ -39,9 +43,9 @@ export default async function CreancesPage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Créances</h2>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
           <p className="mt-2 text-sm text-foreground-muted">
-            Total restant dû : <strong className="text-foreground">{totalRestant.toLocaleString('fr-FR')}</strong>
+            {t.totalRestant} <strong className="text-foreground">{totalRestant.toLocaleString('fr-FR')}</strong>
           </p>
         </div>
       </div>
@@ -50,36 +54,36 @@ export default async function CreancesPage() {
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Client</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Initial</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Restant</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Échéance</th>
-              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">Statut</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colClient}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colInitial}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colRestant}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colEcheance}</th>
+              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colStatut}</th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{c.actions}</span>
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
-            {((creances ?? []) as CreanceRow[]).map((c) => (
-              <tr key={c.id} className="hover:bg-background/50 transition-colors">
-                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-foreground sm:pl-6">{nomClient(c.clients) || '-'}</td>
-                <td className="px-3 py-4 text-sm text-right text-foreground-muted">{Number(c.montant_initial).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(c.montant_restant).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-4 text-sm text-foreground-muted">{c.date_echeance ? new Date(c.date_echeance).toLocaleDateString('fr-FR') : '-'}</td>
+            {((creances ?? []) as CreanceRow[]).map((cr) => (
+              <tr key={cr.id} className="hover:bg-background/50 transition-colors">
+                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-foreground sm:pl-6">{nomClient(cr.clients) || '-'}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground-muted">{Number(cr.montant_initial).toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(cr.montant_restant).toLocaleString('fr-FR')}</td>
+                <td className="px-3 py-4 text-sm text-foreground-muted">{cr.date_echeance ? new Date(cr.date_echeance).toLocaleDateString('fr-FR') : '-'}</td>
                 <td className="px-3 py-4 text-sm text-center">
-                  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${badgeStatut[c.statut] ?? ''}`}>{c.statut}</span>
+                  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${badgeStatut[cr.statut] ?? ''}`}>{cr.statut}</span>
                 </td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  {c.statut !== 'soldee' && (
-                    <ReglerCreanceButton creanceId={c.id} montantRestant={Number(c.montant_restant)} comptes={comptes ?? []} />
+                  {cr.statut !== 'soldee' && (
+                    <ReglerCreanceButton creanceId={cr.id} montantRestant={Number(cr.montant_restant)} comptes={comptes ?? []} dict={dict} />
                   )}
                 </td>
               </tr>
             ))}
             {(creances ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">Aucune créance</td>
+                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>

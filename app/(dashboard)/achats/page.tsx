@@ -1,10 +1,13 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { getDictionary, getLocale } from '@/dictionaries'
 import CreateAchatButton from './CreateAchatButton'
 
 export default async function AchatsPage() {
   const context = await requireGerant()
   const supabase = await createClient()
+  const dict = await getDictionary(await getLocale())
+  const t = dict.achats
 
   const { data: articles } = await supabase
     .from('articles')
@@ -42,11 +45,11 @@ export default async function AchatsPage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto min-w-0">
-          <h2 className="text-2xl font-bold font-heading text-foreground">Achats</h2>
+          <h2 className="text-2xl font-bold font-heading text-foreground">{t.title}</h2>
           <p className="mt-2 text-sm text-foreground-muted">{context.magasinNom}</p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <CreateAchatButton articles={articles ?? []} fournisseurs={fournisseurs ?? []} />
+          <CreateAchatButton articles={articles ?? []} fournisseurs={fournisseurs ?? []} dict={dict} />
         </div>
       </div>
 
@@ -54,12 +57,12 @@ export default async function AchatsPage() {
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">Date</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Fournisseur</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">Paiement</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Total</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">Payé</th>
-              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">Statut</th>
+              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colFournisseur}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colPaiement}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colTotal}</th>
+              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colPaye}</th>
+              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colStatut}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border bg-surface">
@@ -68,7 +71,7 @@ export default async function AchatsPage() {
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-foreground-muted sm:pl-6">
                   {achat.date_achat ? new Date(achat.date_achat).toLocaleString('fr-FR') : '-'}
                 </td>
-                <td className="px-3 py-4 text-sm text-foreground">{nomFournisseur(achat.fournisseurs) || 'Non spécifié'}</td>
+                <td className="px-3 py-4 text-sm text-foreground">{nomFournisseur(achat.fournisseurs) || t.unspecified}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted capitalize">{achat.mode_paiement}</td>
                 <td className="px-3 py-4 text-sm text-right text-foreground">{Number(achat.montant_total).toLocaleString('fr-FR')}</td>
                 <td className="px-3 py-4 text-sm text-right text-foreground-muted">{Number(achat.montant_paye).toLocaleString('fr-FR')}</td>
@@ -81,7 +84,7 @@ export default async function AchatsPage() {
             ))}
             {(achats ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">Aucun achat</td>
+                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>
