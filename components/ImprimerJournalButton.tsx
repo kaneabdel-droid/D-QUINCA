@@ -81,6 +81,7 @@ export default function ImprimerJournalButton({
 
       autoTable(doc, {
         startY: y + 16,
+        margin: { left: 14, right: 14 },
         head: [colonnes.map((col) => col.header)],
         body: lignes,
         foot: totalLigne ? [totalLigne] : undefined,
@@ -88,8 +89,13 @@ export default function ImprimerJournalButton({
         headStyles: { fillColor: [30, 86, 49], textColor: [255, 255, 255], fontStyle: 'bold' },
         footStyles: { fillColor: [240, 240, 240], textColor: [30, 30, 30], fontStyle: 'bold' },
         styles: { font: 'helvetica', fontSize: 9, cellPadding: 3 },
-        columnStyles: colonnes.reduce<Record<number, { halign: 'left' | 'right' | 'center' }>>((acc, col, i) => {
-          if (col.align) acc[i] = { halign: col.align }
+        // Une colonne alignée à droite est, par convention dans cet appelant,
+        // toujours un montant : lui donner une largeur fixe et généreuse (au
+        // lieu de laisser autoTable la dimensionner selon son contenu) évite
+        // qu'elle ne devienne trop étroite et ne force un montant à se couper
+        // sur deux lignes — seules les colonnes de texte libre restent 'auto'.
+        columnStyles: colonnes.reduce<Record<number, { halign?: 'left' | 'right' | 'center'; cellWidth?: number }>>((acc, col, i) => {
+          if (col.align) acc[i] = { halign: col.align, ...(col.align === 'right' ? { cellWidth: 32 } : {}) }
           return acc
         }, {}),
       })

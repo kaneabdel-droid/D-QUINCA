@@ -173,7 +173,9 @@ export default async function TresoreriePage({
                   <p className="text-xs text-foreground-muted capitalize">{compte.type_compte.replace('_', ' ')}</p>
                 </div>
               </div>
-              <p className="mt-4 text-2xl font-bold text-foreground">{(soldeParCompte.get(compte.id) ?? 0).toLocaleString('fr-FR')}</p>
+              <p className="mt-4 text-2xl font-bold text-foreground">
+                {(compteFiltreId && !estSelectionne ? 0 : (soldeParCompte.get(compte.id) ?? 0)).toLocaleString('fr-FR')}
+              </p>
             </Link>
           )
         })}

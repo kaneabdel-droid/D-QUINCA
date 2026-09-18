@@ -85,8 +85,10 @@ export default function TicketCaisseButton({
   .nom { font-size: 14px; font-weight: bold; }
   hr { border: none; border-top: 1px dashed #000; margin: 6px 0; }
   .ligne { margin-bottom: 3px; }
-  .detail { display: flex; justify-content: space-between; }
+  .detail { display: flex; justify-content: space-between; gap: 4px; }
+  .detail span { white-space: nowrap; }
   .totaux div { display: flex; justify-content: space-between; margin-top: 2px; }
+  .totaux span { white-space: nowrap; }
   .grand { font-weight: bold; font-size: 13px; }
 </style>
 </head>
