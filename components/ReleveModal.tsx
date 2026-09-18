@@ -198,6 +198,7 @@ export default function ReleveModal({
 
       autoTable(doc, {
         startY: y + 22,
+        margin: { left: 14, right: 14 },
         head: [[t.colDate, t.colLibelle, t.colDebit, t.colCredit]],
         body: operations.map((o) => [
           new Date(o.date).toLocaleDateString('fr-FR'),
@@ -205,12 +206,25 @@ export default function ReleveModal({
           o.debit > 0 ? formatMontant(o.debit) : '',
           o.credit > 0 ? formatMontant(o.credit) : '',
         ]),
-        foot: [['', t.totalDebit + ' / ' + t.totalCredit, formatMontant(totalDebit), formatMontant(totalCredit)]],
+        // Ligne de total : cellule "libellé" vide plutôt que d'y concaténer les
+        // deux intitulés — les montants sont déjà sans ambiguïté sous leur
+        // propre colonne, et une cellule vide n'entre jamais en concurrence
+        // avec les colonnes Débit/Crédit pour la largeur disponible.
+        foot: [['', '', formatMontant(totalDebit), formatMontant(totalCredit)]],
         theme: 'striped',
         headStyles: { fillColor: [30, 86, 49], textColor: [255, 255, 255], fontStyle: 'bold' },
         footStyles: { fillColor: [240, 240, 240], textColor: [30, 30, 30], fontStyle: 'bold' },
-        styles: { font: 'helvetica', fontSize: 9, cellPadding: 3 },
-        columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' } },
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 3, overflow: 'linebreak' },
+        // Largeurs fixes et généreuses pour Date/Débit/Crédit (calculées pour
+        // le plus grand montant réaliste, ex. "12 345 678") afin qu'un montant
+        // ne puisse jamais se retrouver coupé sur deux lignes ; seule la
+        // colonne Libellé (texte variable) reste flexible ('auto').
+        columnStyles: {
+          0: { cellWidth: 26 },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 34, halign: 'right' },
+          3: { cellWidth: 34, halign: 'right' },
+        },
       })
 
       const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y + 30

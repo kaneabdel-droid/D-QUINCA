@@ -67,8 +67,6 @@
     "colLibelle": "البيان",
     "colDebit": "مدين",
     "colCredit": "دائن",
-    "totalDebit": "إجمالي المدين",
-    "totalCredit": "إجمالي الدائن",
     "soldeFinal": "الرصيد النهائي",
     "empty": "لا توجد عمليات خلال هذه الفترة",
     "libelleVente": "بيع",

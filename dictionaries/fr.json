@@ -67,8 +67,6 @@
     "colLibelle": "Libellé",
     "colDebit": "Débit",
     "colCredit": "Crédit",
-    "totalDebit": "Total débit",
-    "totalCredit": "Total crédit",
     "soldeFinal": "Solde final",
     "empty": "Aucune opération sur cette période",
     "libelleVente": "Vente",

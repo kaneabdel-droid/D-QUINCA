@@ -67,8 +67,6 @@
     "colLibelle": "Description",
     "colDebit": "Debit",
     "colCredit": "Credit",
-    "totalDebit": "Total debit",
-    "totalCredit": "Total credit",
     "soldeFinal": "Final balance",
     "empty": "No transactions for this period",
     "libelleVente": "Sale",
