@@ -59,6 +59,8 @@
     "ticketReste": "المتبقي",
     "ticketSolde": "مسدد",
     "soldeInitial": "الرصيد الافتتاحي",
+    "totalDebit": "إجمالي المدين",
+    "totalCredit": "إجمالي الدائن",
     "soldeFinal": "الرصيد الختامي"
   },
   "releves": {

@@ -23,6 +23,8 @@ export default function ImprimerJournalButton({
   titre,
   periodeLabel,
   soldeInitial,
+  totalDebit,
+  totalCredit,
   soldeFinal,
   colonnes,
   lignes,
@@ -36,8 +38,10 @@ export default function ImprimerJournalButton({
   periodeLabel?: string
   // Uniquement pertinent pour un journal adossé à un solde réel (trésorerie) —
   // les autres journaux (charges, ventes, achats, créances, dettes) n'ont pas
-  // de notion de solde et laissent ces deux props non renseignées.
+  // de notion de solde et laissent ces props non renseignées.
   soldeInitial?: string
+  totalDebit?: string
+  totalCredit?: string
   soldeFinal?: string
   colonnes: Colonne[]
   lignes: (string | number)[][]
@@ -114,12 +118,29 @@ export default function ImprimerJournalButton({
         }, {}),
       })
 
-      if (soldeFinal) {
+      if (totalDebit || totalCredit || soldeFinal) {
         const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y + 30
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(11)
-        doc.setTextColor(30, 86, 49)
-        doc.text(`${t.soldeFinal} : ${soldeFinal}`, pageWidth - 14, finalY + 10, { align: 'right' })
+        let ty = finalY + 8
+        if (totalDebit) {
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          doc.setTextColor(80, 80, 80)
+          doc.text(`${t.totalDebit} : ${totalDebit}`, pageWidth - 14, ty, { align: 'right' })
+          ty += 6
+        }
+        if (totalCredit) {
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          doc.setTextColor(80, 80, 80)
+          doc.text(`${t.totalCredit} : ${totalCredit}`, pageWidth - 14, ty, { align: 'right' })
+          ty += 6
+        }
+        if (soldeFinal) {
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(11)
+          doc.setTextColor(30, 86, 49)
+          doc.text(`${t.soldeFinal} : ${soldeFinal}`, pageWidth - 14, ty + 2, { align: 'right' })
+        }
       }
 
       doc.setFont('helvetica', 'normal')

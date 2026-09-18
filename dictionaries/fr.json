@@ -59,6 +59,8 @@
     "ticketReste": "Reste à payer",
     "ticketSolde": "Soldé",
     "soldeInitial": "Solde initial",
+    "totalDebit": "Total débit",
+    "totalCredit": "Total crédit",
     "soldeFinal": "Solde final"
   },
   "releves": {

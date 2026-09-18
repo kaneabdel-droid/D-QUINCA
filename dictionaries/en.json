@@ -59,6 +59,8 @@
     "ticketReste": "Balance due",
     "ticketSolde": "Settled",
     "soldeInitial": "Opening balance",
+    "totalDebit": "Total debit",
+    "totalCredit": "Total credit",
     "soldeFinal": "Closing balance"
   },
   "releves": {

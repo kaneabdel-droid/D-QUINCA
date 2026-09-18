@@ -107,7 +107,8 @@ export default async function TresoreriePage({
       soldeInitialPeriode += m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)
     }
   }
-  let netPeriode = 0
+  let totalDebitPeriode = 0
+  let totalCreditPeriode = 0
   if (comptesInclusIds.length) {
     let netQuery = supabase
       .from('journal_tresorerie')
@@ -118,10 +119,11 @@ export default async function TresoreriePage({
     if (to) netQuery = netQuery.lte('date_mouvement', `${to}T23:59:59`)
     const { data: mouvementsNetPeriode } = await netQuery
     for (const m of mouvementsNetPeriode ?? []) {
-      netPeriode += m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)
+      if (m.type_mouvement === 'entree') totalDebitPeriode += Number(m.montant)
+      else totalCreditPeriode += Number(m.montant)
     }
   }
-  const soldeFinalPeriode = soldeInitialPeriode + netPeriode
+  const soldeFinalPeriode = soldeInitialPeriode + totalDebitPeriode - totalCreditPeriode
 
   // reference_id/reference_type est une référence polymorphe (vente, achat,
   // créance, dette) — PostgREST ne peut pas l'embarquer automatiquement, d'où
@@ -244,6 +246,8 @@ export default async function TresoreriePage({
           titre={compteFiltre ? `${t.journal} — ${compteFiltre.nom}` : t.journal}
           periodeLabel={from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes}
           soldeInitial={formatMontantPdf(soldeInitialPeriode, context.entrepriseDevise)}
+          totalDebit={formatMontantPdf(totalDebitPeriode, context.entrepriseDevise)}
+          totalCredit={formatMontantPdf(totalCreditPeriode, context.entrepriseDevise)}
           soldeFinal={formatMontantPdf(soldeFinalPeriode, context.entrepriseDevise)}
           colonnes={[
             { header: t.colDate },
