@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateChargeButton from './CreateChargeButton'
 import ChargeRowActions from './ChargeRowActions'
@@ -73,7 +74,7 @@ export default async function ChargesPage({
             charge.date_charge ? new Date(charge.date_charge).toLocaleDateString('fr-FR') : '-',
             charge.categorie ?? '-',
             charge.libelle || '-',
-            Number(charge.montant).toLocaleString('fr-FR'),
+            formatMontantPdf(charge.montant, context.entrepriseDevise),
             charge.recurrente ? c.yes : c.no,
           ])}
           nomFichier="journal-charges"

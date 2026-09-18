@@ -12,6 +12,7 @@ export default function ReleveButton({
   releveType,
   magasinId,
   entreprise,
+  devise,
   referenceId,
   referenceNom,
   dict,
@@ -19,6 +20,7 @@ export default function ReleveButton({
   releveType: ReleveType
   magasinId: string | null
   entreprise: EntrepriseHeader
+  devise: string
   referenceId: string
   referenceNom: string
   dict: Dictionary
@@ -38,6 +40,7 @@ export default function ReleveButton({
           releveType={releveType}
           magasinId={magasinId}
           entreprise={entreprise}
+          devise={devise}
           referenceId={referenceId}
           referenceNom={referenceNom}
           dict={dict}

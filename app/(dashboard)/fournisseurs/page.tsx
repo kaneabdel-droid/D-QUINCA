@@ -48,7 +48,7 @@ export default async function FournisseursPage() {
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.telephone || '-'}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.adresse || '-'}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <FournisseurRowActions fournisseur={fournisseur} dict={dict} magasinId={context.magasinId} entreprise={entreprise} />
+                  <FournisseurRowActions fournisseur={fournisseur} dict={dict} magasinId={context.magasinId} entreprise={entreprise} devise={context.entrepriseDevise} />
                 </td>
               </tr>
             ))}

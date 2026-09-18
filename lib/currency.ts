@@ -31,3 +31,19 @@ export function formatMontant(valeur: number | null | undefined, devise?: string
   })
   return `${nombre} ${info.symbole}`
 }
+
+// Variante sûre pour jsPDF : Number.toLocaleString('fr-FR') groupe les
+// milliers avec une espace fine insécable (U+202F) sur les runtimes
+// récents, un caractère absent de l'encodage WinAnsi des polices intégrées
+// de jsPDF (Helvetica, Times, Courier). jsPDF ne peut alors ni le dessiner
+// ni mesurer correctement sa largeur, ce qui fausse le calcul de largeur
+// de colonne d'autoTable et peut couper ou chevaucher un montant. Un espace
+// ASCII normal produit le même regroupement par milliers sans ce problème
+// — à utiliser pour tout montant destiné à un doc.text()/autoTable().
+export function formatMontantPdf(valeur: number | null | undefined, devise?: string | null): string {
+  const code = estDeviseValide(devise) ? devise : DEVISE_PAR_DEFAUT
+  const decimales = DEVISES[code].decimales
+  const [entier, partieDecimale] = Number(valeur ?? 0).toFixed(decimales).split('.')
+  const entierGroupe = entier.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  return partieDecimale ? `${entierGroupe},${partieDecimale}` : entierGroupe
+}

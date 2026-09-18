@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { Wallet, Landmark, Smartphone } from 'lucide-react'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
@@ -220,7 +221,7 @@ export default async function TresoreriePage({
             (m.categorie ?? '-').replace('_', ' '),
             tiersPour(m),
             m.motif || '-',
-            `${m.type_mouvement === 'entree' ? '+' : '-'}${Number(m.montant).toLocaleString('fr-FR')}`,
+            `${m.type_mouvement === 'entree' ? '+' : '-'}${formatMontantPdf(m.montant, context.entrepriseDevise)}`,
           ])}
           nomFichier="journal-tresorerie"
         />

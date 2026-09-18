@@ -15,11 +15,13 @@ export default function ClientRowActions({
   dict,
   magasinId,
   entreprise,
+  devise,
 }: {
   client: Client
   dict: Dictionary
   magasinId: string | null
   entreprise: EntrepriseHeader
+  devise: string
 }) {
   const t = dict.clients
   const c = dict.common
@@ -53,7 +55,7 @@ export default function ClientRowActions({
   return (
     <>
       <div className="flex justify-end gap-2">
-        <ReleveButton releveType="client" magasinId={magasinId} entreprise={entreprise} referenceId={client.id} referenceNom={client.nom} dict={dict} />
+        <ReleveButton releveType="client" magasinId={magasinId} entreprise={entreprise} devise={devise} referenceId={client.id} referenceNom={client.nom} dict={dict} />
         <button onClick={() => setIsEditOpen(true)} className="text-foreground-muted hover:text-primary p-1" title={c.edit}>
           <Pencil className="h-4 w-4" />
         </button>

@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateVenteButton from './CreateVenteButton'
 import ReceiptPdfButton from './ReceiptPdfButton'
@@ -95,8 +96,8 @@ export default async function VentesPage({
             v.date_vente ? new Date(v.date_vente).toLocaleString('fr-FR') : '-',
             nomClient(v.clients) || t.walkInClient,
             v.mode_paiement ?? '-',
-            Number(v.montant_total).toLocaleString('fr-FR'),
-            Number(v.montant_paye).toLocaleString('fr-FR'),
+            formatMontantPdf(v.montant_total, context.entrepriseDevise),
+            formatMontantPdf(v.montant_paye, context.entrepriseDevise),
             v.statut,
           ])}
           nomFichier="journal-ventes"

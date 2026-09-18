@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerCreanceButton from './ReglerCreanceButton'
 import PeriodeFilter from '@/components/PeriodeFilter'
@@ -80,8 +81,8 @@ export default async function CreancesPage({
           ]}
           lignes={((creances ?? []) as CreanceRow[]).map((cr) => [
             nomClient(cr.clients) || '-',
-            Number(cr.montant_initial).toLocaleString('fr-FR'),
-            Number(cr.montant_restant).toLocaleString('fr-FR'),
+            formatMontantPdf(cr.montant_initial, context.entrepriseDevise),
+            formatMontantPdf(cr.montant_restant, context.entrepriseDevise),
             cr.date_echeance ? new Date(cr.date_echeance).toLocaleDateString('fr-FR') : '-',
             cr.statut,
           ])}

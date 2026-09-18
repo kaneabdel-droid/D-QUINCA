@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateAchatButton from './CreateAchatButton'
 import AnnulerAchatButton from './AnnulerAchatButton'
@@ -88,8 +89,8 @@ export default async function AchatsPage({
             a.date_achat ? new Date(a.date_achat).toLocaleString('fr-FR') : '-',
             nomFournisseur(a.fournisseurs) || t.unspecified,
             a.mode_paiement ?? '-',
-            Number(a.montant_total).toLocaleString('fr-FR'),
-            Number(a.montant_paye).toLocaleString('fr-FR'),
+            formatMontantPdf(a.montant_total, context.entrepriseDevise),
+            formatMontantPdf(a.montant_paye, context.entrepriseDevise),
             a.statut,
           ])}
           nomFichier="journal-achats"

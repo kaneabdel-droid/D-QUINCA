@@ -8,9 +8,8 @@ import { createClient } from '@/utils/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Dictionary } from '@/dictionaries'
 import type { EntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import type { ReleveType } from './ReleveButton'
-
-const formatMontant = (n: number) => Math.round(n).toLocaleString('fr-FR')
 
 type Operation = { date: string; libelle: string; debit: number; credit: number }
 
@@ -127,6 +126,7 @@ export default function ReleveModal({
   releveType,
   magasinId,
   entreprise,
+  devise,
   referenceId,
   referenceNom,
   dict,
@@ -135,6 +135,7 @@ export default function ReleveModal({
   releveType: ReleveType
   magasinId: string | null
   entreprise: EntrepriseHeader
+  devise: string
   referenceId: string
   referenceNom: string
   dict: Dictionary
@@ -203,14 +204,14 @@ export default function ReleveModal({
         body: operations.map((o) => [
           new Date(o.date).toLocaleDateString('fr-FR'),
           o.libelle,
-          o.debit > 0 ? formatMontant(o.debit) : '',
-          o.credit > 0 ? formatMontant(o.credit) : '',
+          o.debit > 0 ? formatMontantPdf(o.debit, devise) : '',
+          o.credit > 0 ? formatMontantPdf(o.credit, devise) : '',
         ]),
         // Ligne de total : cellule "libellé" vide plutôt que d'y concaténer les
         // deux intitulés — les montants sont déjà sans ambiguïté sous leur
         // propre colonne, et une cellule vide n'entre jamais en concurrence
         // avec les colonnes Débit/Crédit pour la largeur disponible.
-        foot: [['', '', formatMontant(totalDebit), formatMontant(totalCredit)]],
+        foot: [['', '', formatMontantPdf(totalDebit, devise), formatMontantPdf(totalCredit, devise)]],
         theme: 'striped',
         headStyles: { fillColor: [30, 86, 49], textColor: [255, 255, 255], fontStyle: 'bold' },
         footStyles: { fillColor: [240, 240, 240], textColor: [30, 30, 30], fontStyle: 'bold' },
@@ -231,7 +232,7 @@ export default function ReleveModal({
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(11)
       doc.setTextColor(30, 86, 49)
-      doc.text(`${t.soldeFinal} : ${formatMontant(Math.abs(totalDebit - totalCredit))}`, pageWidth - 14, finalY + 10, { align: 'right' })
+      doc.text(`${t.soldeFinal} : ${formatMontantPdf(Math.abs(totalDebit - totalCredit), devise)}`, pageWidth - 14, finalY + 10, { align: 'right' })
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)

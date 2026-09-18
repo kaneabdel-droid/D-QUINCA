@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerDetteButton from './ReglerDetteButton'
 import PeriodeFilter from '@/components/PeriodeFilter'
@@ -80,8 +81,8 @@ export default async function DettesPage({
           ]}
           lignes={((dettes ?? []) as DetteRow[]).map((d) => [
             nomFournisseur(d.fournisseurs) || '-',
-            Number(d.montant_initial).toLocaleString('fr-FR'),
-            Number(d.montant_restant).toLocaleString('fr-FR'),
+            formatMontantPdf(d.montant_initial, context.entrepriseDevise),
+            formatMontantPdf(d.montant_restant, context.entrepriseDevise),
             d.date_echeance ? new Date(d.date_echeance).toLocaleDateString('fr-FR') : '-',
             d.statut,
           ])}
