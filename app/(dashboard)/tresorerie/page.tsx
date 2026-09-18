@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { Wallet, Landmark, Smartphone } from 'lucide-react'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
 import AddEcritureButton from './AddEcritureButton'
 import EcritureRowActions from './EcritureRowActions'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
 const iconParType: Record<string, typeof Wallet> = {
   caisse: Wallet,
@@ -23,14 +25,29 @@ function formatDateJJMMAAAA(iso: string) {
 export default async function TresoreriePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ compte?: string }>
+  searchParams?: Promise<{ compte?: string; from?: string; to?: string }>
 }) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.tresorerie
+  const ti = dict.impression
   const c = dict.common
-  const compteFiltreId = (await searchParams)?.compte
+  const { compte: compteFiltreId, from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
+
+  // Préserve les autres filtres actifs (compte, période) quand on change l'un
+  // d'eux — sans ça, cliquer un compte perdrait la période choisie et
+  // inversement.
+  const qs = (overrides: Record<string, string | undefined>) => {
+    const params = new URLSearchParams()
+    const valeurs = { compte: compteFiltreId, from, to, ...overrides }
+    for (const [cle, valeur] of Object.entries(valeurs)) {
+      if (valeur) params.set(cle, valeur)
+    }
+    const s = params.toString()
+    return s ? `?${s}` : '?'
+  }
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
@@ -43,13 +60,26 @@ export default async function TresoreriePage({
     .select('id, compte_tresorerie_id, type_mouvement, montant, categorie, motif, date_mouvement, reference_id, reference_type')
     .eq('magasin_id', context.magasinId)
   if (compteFiltreId) mouvementsQuery = mouvementsQuery.eq('compte_tresorerie_id', compteFiltreId)
+  if (from) mouvementsQuery = mouvementsQuery.gte('date_mouvement', from)
+  if (to) mouvementsQuery = mouvementsQuery.lte('date_mouvement', `${to}T23:59:59`)
   const { data: mouvements } = await mouvementsQuery
+    .order('date_mouvement', { ascending: false })
+    .limit(50)
+
+  // Soldes des comptes calculés à partir d'une requête séparée, non filtrée
+  // par compte/période : sinon, filtrer le journal sur un compte ou une
+  // période viderait à tort le solde affiché sur les cartes des AUTRES
+  // comptes (ou sur une période qui exclut leurs mouvements).
+  const { data: mouvementsPourSolde } = await supabase
+    .from('journal_tresorerie')
+    .select('compte_tresorerie_id, type_mouvement, montant')
+    .eq('magasin_id', context.magasinId)
     .order('date_mouvement', { ascending: false })
     .limit(50)
 
   const soldeParCompte = new Map<string, number>()
   for (const c of comptes ?? []) soldeParCompte.set(c.id, Number(c.solde_initial))
-  for (const m of mouvements ?? []) {
+  for (const m of mouvementsPourSolde ?? []) {
     const courant = soldeParCompte.get(m.compte_tresorerie_id) ?? 0
     soldeParCompte.set(m.compte_tresorerie_id, courant + (m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)))
   }
@@ -131,7 +161,7 @@ export default async function TresoreriePage({
           return (
             <Link
               key={compte.id}
-              href={estSelectionne ? '?' : `?compte=${compte.id}`}
+              href={qs({ compte: estSelectionne ? undefined : compte.id })}
               className={`overflow-hidden rounded-xl bg-surface p-6 shadow-sm border transition-colors ${estSelectionne ? 'border-primary ring-2 ring-primary/30' : 'border-surface-border hover:border-primary/50'}`}
             >
               <div className="flex items-start gap-3">
@@ -162,9 +192,38 @@ export default async function TresoreriePage({
           )}
         </h3>
         {compteFiltre && (
-          <Link href="?" className="text-sm font-medium text-primary hover:underline">{t.toutesComptes}</Link>
+          <Link href={qs({ compte: undefined })} className="text-sm font-medium text-primary hover:underline">{t.toutesComptes}</Link>
         )}
       </div>
+
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} hiddenParams={compteFiltreId ? { compte: compteFiltreId } : undefined} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={compteFiltre ? `${t.journal} — ${compteFiltre.nom}` : t.journal}
+          periodeLabel={from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes}
+          colonnes={[
+            { header: t.colDate },
+            { header: t.colCompte },
+            { header: t.colCategorie },
+            { header: t.colTiers },
+            { header: t.colMotif },
+            { header: t.colMontant, align: 'right' },
+          ]}
+          lignes={(mouvements ?? []).map((m) => [
+            m.date_mouvement ? formatDateJJMMAAAA(m.date_mouvement) : '-',
+            compteParId.get(m.compte_tresorerie_id)?.nom ?? '-',
+            (m.categorie ?? '-').replace('_', ' '),
+            tiersPour(m),
+            m.motif || '-',
+            `${m.type_mouvement === 'entree' ? '+' : '-'}${Number(m.montant).toLocaleString('fr-FR')}`,
+          ])}
+          nomFichier="journal-tresorerie"
+        />
+      </div>
+
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">

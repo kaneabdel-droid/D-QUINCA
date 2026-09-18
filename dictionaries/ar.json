@@ -38,6 +38,27 @@
     "saved": "تم حفظ المعلومات",
     "logoSaved": "تم تحديث الشعار"
   },
+  "impression": {
+    "du": "من",
+    "au": "إلى",
+    "filtrer": "تصفية",
+    "reinitialiser": "إعادة التعيين",
+    "periodeToutes": "كل الفترة",
+    "periode": "الفترة",
+    "imprimer": "طباعة",
+    "portrait": "عمودي",
+    "paysage": "أفقي",
+    "imprimeLe": "طُبع في",
+    "imprimerTicket": "طباعة الإيصال",
+    "ticketMerci": "شكرًا لثقتكم",
+    "ticketClient": "العميل",
+    "ticketNumero": "رقم",
+    "ticketDate": "التاريخ",
+    "ticketTotal": "الإجمالي",
+    "ticketPaye": "المدفوع",
+    "ticketReste": "المتبقي",
+    "ticketSolde": "مسدد"
+  },
   "common": {
     "create": "إنشاء",
     "creating": "جارٍ الإنشاء...",

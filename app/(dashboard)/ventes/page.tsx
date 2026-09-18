@@ -1,16 +1,26 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateVenteButton from './CreateVenteButton'
 import ReceiptPdfButton from './ReceiptPdfButton'
+import TicketCaisseButton from './TicketCaisseButton'
 import AnnulerVenteButton from './AnnulerVenteButton'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
-export default async function VentesPage() {
+export default async function VentesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string; to?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.ventes
+  const ti = dict.impression
   const c = dict.common
+  const { from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: articles } = await supabase
     .from('articles')
@@ -24,10 +34,13 @@ export default async function VentesPage() {
     .eq('magasin_id', context.magasinId)
     .order('nom')
 
-  const { data: ventes } = await supabase
+  let ventesQuery = supabase
     .from('ventes')
     .select('id, numero, date_vente, mode_paiement, montant_total, montant_paye, statut, clients(nom)')
     .eq('magasin_id', context.magasinId)
+  if (from) ventesQuery = ventesQuery.gte('date_vente', from)
+  if (to) ventesQuery = ventesQuery.lte('date_vente', `${to}T23:59:59`)
+  const { data: ventes } = await ventesQuery
     .order('date_vente', { ascending: false })
     .limit(50)
 
@@ -48,6 +61,7 @@ export default async function VentesPage() {
     clients: { nom: string } | { nom: string }[] | null
   }
   const nomClient = (c: VenteRow['clients']) => (Array.isArray(c) ? c[0]?.nom : c?.nom)
+  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
 
   return (
     <div>
@@ -61,7 +75,35 @@ export default async function VentesPage() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={t.title}
+          periodeLabel={periodeLabel}
+          colonnes={[
+            { header: t.colDate },
+            { header: t.colClient },
+            { header: t.colPaiement },
+            { header: t.colTotal, align: 'right' },
+            { header: t.colPaye, align: 'right' },
+            { header: t.colStatut },
+          ]}
+          lignes={((ventes ?? []) as VenteRow[]).map((v) => [
+            v.date_vente ? new Date(v.date_vente).toLocaleString('fr-FR') : '-',
+            nomClient(v.clients) || t.walkInClient,
+            v.mode_paiement ?? '-',
+            Number(v.montant_total).toLocaleString('fr-FR'),
+            Number(v.montant_paye).toLocaleString('fr-FR'),
+            v.statut,
+          ])}
+          nomFichier="journal-ventes"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
@@ -99,6 +141,13 @@ export default async function VentesPage() {
                       magasinNom={context.magasinNom ?? ''}
                       clientNom={nomClient(vente.clients) ?? null}
                       title={t.downloadReceipt}
+                    />
+                    <TicketCaisseButton
+                      vente={vente}
+                      entrepriseNom={context.entrepriseNom}
+                      magasinNom={context.magasinNom ?? ''}
+                      clientNom={nomClient(vente.clients) ?? null}
+                      dict={dict}
                     />
                     {vente.statut === 'validee' && <AnnulerVenteButton venteId={vente.id} dict={dict} />}
                   </div>

@@ -38,6 +38,27 @@
     "saved": "Information saved",
     "logoSaved": "Logo updated"
   },
+  "impression": {
+    "du": "From",
+    "au": "to",
+    "filtrer": "Filter",
+    "reinitialiser": "Reset",
+    "periodeToutes": "Entire period",
+    "periode": "Period",
+    "imprimer": "Print",
+    "portrait": "Portrait",
+    "paysage": "Landscape",
+    "imprimeLe": "Printed on",
+    "imprimerTicket": "Print receipt",
+    "ticketMerci": "Thank you for your trust",
+    "ticketClient": "Customer",
+    "ticketNumero": "No.",
+    "ticketDate": "Date",
+    "ticketTotal": "Total",
+    "ticketPaye": "Paid",
+    "ticketReste": "Balance due",
+    "ticketSolde": "Settled"
+  },
   "common": {
     "create": "Create",
     "creating": "Creating...",

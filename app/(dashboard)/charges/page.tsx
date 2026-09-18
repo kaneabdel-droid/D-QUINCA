@@ -1,31 +1,44 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateChargeButton from './CreateChargeButton'
 import ChargeRowActions from './ChargeRowActions'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
-export default async function ChargesPage() {
+export default async function ChargesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string; to?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.charges
+  const ti = dict.impression
   const c = dict.common
+  const { from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
     .select('id, nom')
     .eq('magasin_id', context.magasinId)
 
-  const { data: charges } = await supabase
+  let chargesQuery = supabase
     .from('charges')
     .select('id, categorie, libelle, montant, date_charge, recurrente, compte_tresorerie_id')
     .eq('magasin_id', context.magasinId)
+  if (from) chargesQuery = chargesQuery.gte('date_charge', from)
+  if (to) chargesQuery = chargesQuery.lte('date_charge', to)
+  const { data: charges } = await chargesQuery
     .order('date_charge', { ascending: false })
     .limit(50)
 
   const totalMois = (charges ?? [])
     .filter((c) => c.date_charge && new Date(c.date_charge).getMonth() === new Date().getMonth())
     .reduce((sum, c) => sum + Number(c.montant), 0)
+  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
 
   return (
     <div>
@@ -41,7 +54,33 @@ export default async function ChargesPage() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={t.title}
+          periodeLabel={periodeLabel}
+          colonnes={[
+            { header: t.colDate },
+            { header: t.colCategorie },
+            { header: t.colLibelle },
+            { header: t.colMontant, align: 'right' },
+            { header: t.colRecurrente },
+          ]}
+          lignes={(charges ?? []).map((charge) => [
+            charge.date_charge ? new Date(charge.date_charge).toLocaleDateString('fr-FR') : '-',
+            charge.categorie ?? '-',
+            charge.libelle || '-',
+            Number(charge.montant).toLocaleString('fr-FR'),
+            charge.recurrente ? c.yes : c.no,
+          ])}
+          nomFichier="journal-charges"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>

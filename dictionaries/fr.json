@@ -38,6 +38,27 @@
     "saved": "Informations enregistrées",
     "logoSaved": "Logo mis à jour"
   },
+  "impression": {
+    "du": "Du",
+    "au": "au",
+    "filtrer": "Filtrer",
+    "reinitialiser": "Réinitialiser",
+    "periodeToutes": "Toute la période",
+    "periode": "Période",
+    "imprimer": "Imprimer",
+    "portrait": "Portrait",
+    "paysage": "Paysage",
+    "imprimeLe": "Imprimé le",
+    "imprimerTicket": "Imprimer le ticket",
+    "ticketMerci": "Merci de votre confiance",
+    "ticketClient": "Client",
+    "ticketNumero": "N°",
+    "ticketDate": "Date",
+    "ticketTotal": "Total",
+    "ticketPaye": "Payé",
+    "ticketReste": "Reste à payer",
+    "ticketSolde": "Soldé"
+  },
   "common": {
     "create": "Créer",
     "creating": "Création...",

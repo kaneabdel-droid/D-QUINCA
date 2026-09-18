@@ -1,19 +1,31 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerDetteButton from './ReglerDetteButton'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
-export default async function DettesPage() {
+export default async function DettesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string; to?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.dettes
+  const ti = dict.impression
   const c = dict.common
+  const { from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
-  const { data: dettes } = await supabase
+  let dettesQuery = supabase
     .from('dettes')
     .select('id, montant_initial, montant_restant, date_echeance, statut, fournisseurs(nom)')
     .eq('magasin_id', context.magasinId)
+  if (from) dettesQuery = dettesQuery.gte('date_echeance', from)
+  if (to) dettesQuery = dettesQuery.lte('date_echeance', to)
+  const { data: dettes } = await dettesQuery
     .order('date_echeance', { ascending: true, nullsFirst: false })
 
   const { data: comptes } = await supabase
@@ -38,6 +50,7 @@ export default async function DettesPage() {
     fournisseurs: { nom: string } | { nom: string }[] | null
   }
   const nomFournisseur = (f: DetteRow['fournisseurs']) => (Array.isArray(f) ? f[0]?.nom : f?.nom)
+  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
 
   return (
     <div>
@@ -50,7 +63,33 @@ export default async function DettesPage() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={t.title}
+          periodeLabel={periodeLabel}
+          colonnes={[
+            { header: t.colFournisseur },
+            { header: t.colInitial, align: 'right' },
+            { header: t.colRestant, align: 'right' },
+            { header: t.colEcheance },
+            { header: t.colStatut },
+          ]}
+          lignes={((dettes ?? []) as DetteRow[]).map((d) => [
+            nomFournisseur(d.fournisseurs) || '-',
+            Number(d.montant_initial).toLocaleString('fr-FR'),
+            Number(d.montant_restant).toLocaleString('fr-FR'),
+            d.date_echeance ? new Date(d.date_echeance).toLocaleDateString('fr-FR') : '-',
+            d.statut,
+          ])}
+          nomFichier="journal-dettes"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>

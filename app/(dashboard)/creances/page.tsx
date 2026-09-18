@@ -1,19 +1,31 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerCreanceButton from './ReglerCreanceButton'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
-export default async function CreancesPage() {
+export default async function CreancesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string; to?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.creances
+  const ti = dict.impression
   const c = dict.common
+  const { from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
-  const { data: creances } = await supabase
+  let creancesQuery = supabase
     .from('creances')
     .select('id, montant_initial, montant_restant, date_echeance, statut, clients(nom)')
     .eq('magasin_id', context.magasinId)
+  if (from) creancesQuery = creancesQuery.gte('date_echeance', from)
+  if (to) creancesQuery = creancesQuery.lte('date_echeance', to)
+  const { data: creances } = await creancesQuery
     .order('date_echeance', { ascending: true, nullsFirst: false })
 
   const { data: comptes } = await supabase
@@ -38,6 +50,7 @@ export default async function CreancesPage() {
     clients: { nom: string } | { nom: string }[] | null
   }
   const nomClient = (c: CreanceRow['clients']) => (Array.isArray(c) ? c[0]?.nom : c?.nom)
+  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
 
   return (
     <div>
@@ -50,7 +63,33 @@ export default async function CreancesPage() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={t.title}
+          periodeLabel={periodeLabel}
+          colonnes={[
+            { header: t.colClient },
+            { header: t.colInitial, align: 'right' },
+            { header: t.colRestant, align: 'right' },
+            { header: t.colEcheance },
+            { header: t.colStatut },
+          ]}
+          lignes={((creances ?? []) as CreanceRow[]).map((cr) => [
+            nomClient(cr.clients) || '-',
+            Number(cr.montant_initial).toLocaleString('fr-FR'),
+            Number(cr.montant_restant).toLocaleString('fr-FR'),
+            cr.date_echeance ? new Date(cr.date_echeance).toLocaleDateString('fr-FR') : '-',
+            cr.statut,
+          ])}
+          nomFichier="journal-creances"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>

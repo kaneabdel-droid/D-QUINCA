@@ -58,6 +58,34 @@ export const getCurrentUserContext = cache(async (): Promise<UserContext> => {
   }
 })
 
+export type EntrepriseHeader = {
+  nom: string
+  adresse: string | null
+  telephone: string | null
+  identification: string | null
+  logoUrl: string | null
+}
+
+// Requête séparée plutôt que d'étendre getCurrentUserContext ci-dessus (comme
+// /parametres le fait déjà) : adresse/identification/logo ne servent qu'aux
+// pages avec en-tête imprimé, inutile d'alourdir le chokepoint pour ça.
+export const getEntrepriseHeader = cache(async (entrepriseId: string): Promise<EntrepriseHeader> => {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('entreprises')
+    .select('nom, adresse, telephone, identification, logo_url')
+    .eq('id', entrepriseId)
+    .single()
+
+  return {
+    nom: data?.nom ?? '',
+    adresse: data?.adresse ?? null,
+    telephone: data?.telephone ?? null,
+    identification: data?.identification ?? null,
+    logoUrl: data?.logo_url ?? null,
+  }
+})
+
 // Garde-fou serveur pour les pages réservées au gérant (CRUD opérationnel) : un
 // lien de nav caché n'est pas un contrôle d'accès, cf. plan §5. À appeler en
 // tête de chaque page.tsx d'écriture (categories, articles, stock, ventes,

@@ -1,15 +1,24 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateAchatButton from './CreateAchatButton'
 import AnnulerAchatButton from './AnnulerAchatButton'
+import PeriodeFilter from '@/components/PeriodeFilter'
+import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
-export default async function AchatsPage() {
+export default async function AchatsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ from?: string; to?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.achats
+  const ti = dict.impression
   const c = dict.common
+  const { from, to } = (await searchParams) ?? {}
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: articles } = await supabase
     .from('articles')
@@ -19,10 +28,13 @@ export default async function AchatsPage() {
 
   const { data: fournisseurs } = await supabase.from('fournisseurs').select('id, nom').order('nom')
 
-  const { data: achats } = await supabase
+  let achatsQuery = supabase
     .from('achats')
     .select('id, date_achat, mode_paiement, montant_total, montant_paye, statut, fournisseurs(nom)')
     .eq('magasin_id', context.magasinId)
+  if (from) achatsQuery = achatsQuery.gte('date_achat', from)
+  if (to) achatsQuery = achatsQuery.lte('date_achat', `${to}T23:59:59`)
+  const { data: achats } = await achatsQuery
     .order('date_achat', { ascending: false })
     .limit(50)
 
@@ -42,6 +54,7 @@ export default async function AchatsPage() {
     fournisseurs: { nom: string } | { nom: string }[] | null
   }
   const nomFournisseur = (f: AchatRow['fournisseurs']) => (Array.isArray(f) ? f[0]?.nom : f?.nom)
+  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
 
   return (
     <div>
@@ -55,7 +68,35 @@ export default async function AchatsPage() {
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <PeriodeFilter from={from} to={to} dict={dict} />
+        <ImprimerJournalButton
+          dict={dict}
+          entreprise={entreprise}
+          magasinNom={context.magasinNom ?? ''}
+          titre={t.title}
+          periodeLabel={periodeLabel}
+          colonnes={[
+            { header: t.colDate },
+            { header: t.colFournisseur },
+            { header: t.colPaiement },
+            { header: t.colTotal, align: 'right' },
+            { header: t.colPaye, align: 'right' },
+            { header: t.colStatut },
+          ]}
+          lignes={((achats ?? []) as AchatRow[]).map((a) => [
+            a.date_achat ? new Date(a.date_achat).toLocaleString('fr-FR') : '-',
+            nomFournisseur(a.fournisseurs) || t.unspecified,
+            a.mode_paiement ?? '-',
+            Number(a.montant_total).toLocaleString('fr-FR'),
+            Number(a.montant_paye).toLocaleString('fr-FR'),
+            a.statut,
+          ])}
+          nomFichier="journal-achats"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
             <tr>
