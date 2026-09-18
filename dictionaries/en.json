@@ -59,6 +59,25 @@
     "ticketReste": "Balance due",
     "ticketSolde": "Settled"
   },
+  "releves": {
+    "buttonLabel": "Statement",
+    "titleClient": "Customer account statement",
+    "titleFournisseur": "Supplier account statement",
+    "colDate": "Date",
+    "colLibelle": "Description",
+    "colDebit": "Debit",
+    "colCredit": "Credit",
+    "totalDebit": "Total debit",
+    "totalCredit": "Total credit",
+    "soldeFinal": "Final balance",
+    "empty": "No transactions for this period",
+    "libelleVente": "Sale",
+    "libellePaiementVente": "Payment at sale",
+    "libelleReglementCreance": "Receivable payment",
+    "libelleAchat": "Purchase",
+    "libellePaiementAchat": "Payment at purchase",
+    "libelleReglementDette": "Payable payment"
+  },
   "common": {
     "create": "Create",
     "creating": "Creating...",

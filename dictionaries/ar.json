@@ -59,6 +59,25 @@
     "ticketReste": "المتبقي",
     "ticketSolde": "مسدد"
   },
+  "releves": {
+    "buttonLabel": "كشف حساب",
+    "titleClient": "كشف حساب العميل",
+    "titleFournisseur": "كشف حساب المورد",
+    "colDate": "التاريخ",
+    "colLibelle": "البيان",
+    "colDebit": "مدين",
+    "colCredit": "دائن",
+    "totalDebit": "إجمالي المدين",
+    "totalCredit": "إجمالي الدائن",
+    "soldeFinal": "الرصيد النهائي",
+    "empty": "لا توجد عمليات خلال هذه الفترة",
+    "libelleVente": "بيع",
+    "libellePaiementVente": "دفعة عند البيع",
+    "libelleReglementCreance": "تسوية دين مستحق",
+    "libelleAchat": "شراء",
+    "libellePaiementAchat": "دفعة عند الشراء",
+    "libelleReglementDette": "تسوية دين"
+  },
   "common": {
     "create": "إنشاء",
     "creating": "جارٍ الإنشاء...",

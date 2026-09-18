@@ -59,6 +59,25 @@
     "ticketReste": "Reste à payer",
     "ticketSolde": "Soldé"
   },
+  "releves": {
+    "buttonLabel": "Relevé",
+    "titleClient": "Relevé de compte client",
+    "titleFournisseur": "Relevé de compte fournisseur",
+    "colDate": "Date",
+    "colLibelle": "Libellé",
+    "colDebit": "Débit",
+    "colCredit": "Crédit",
+    "totalDebit": "Total débit",
+    "totalCredit": "Total crédit",
+    "soldeFinal": "Solde final",
+    "empty": "Aucune opération sur cette période",
+    "libelleVente": "Vente",
+    "libellePaiementVente": "Paiement à la vente",
+    "libelleReglementCreance": "Règlement créance",
+    "libelleAchat": "Achat",
+    "libellePaiementAchat": "Paiement à l'achat",
+    "libelleReglementDette": "Règlement dette"
+  },
   "common": {
     "create": "Créer",
     "creating": "Création...",

@@ -1,15 +1,16 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateFournisseurButton from './CreateFournisseurButton'
 import FournisseurRowActions from './FournisseurRowActions'
 
 export default async function FournisseursPage() {
-  await requireGerant()
+  const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.fournisseurs
   const c = dict.common
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: fournisseurs } = await supabase
     .from('fournisseurs')
@@ -47,7 +48,7 @@ export default async function FournisseursPage() {
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.telephone || '-'}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{fournisseur.adresse || '-'}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <FournisseurRowActions fournisseur={fournisseur} dict={dict} />
+                  <FournisseurRowActions fournisseur={fournisseur} dict={dict} magasinId={context.magasinId} entreprise={entreprise} />
                 </td>
               </tr>
             ))}

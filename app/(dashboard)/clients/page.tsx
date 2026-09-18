@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant } from '@/lib/auth/getCurrentUserContext'
+import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateClientButton from './CreateClientButton'
 import ClientRowActions from './ClientRowActions'
@@ -10,6 +10,7 @@ export default async function ClientsPage() {
   const dict = await getDictionary(await getLocale())
   const t = dict.clients
   const c = dict.common
+  const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: clients } = await supabase
     .from('clients')
@@ -48,7 +49,7 @@ export default async function ClientsPage() {
                 <td className="px-3 py-4 text-sm text-foreground-muted">{client.telephone || '-'}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{client.adresse || '-'}</td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <ClientRowActions client={client} dict={dict} />
+                  <ClientRowActions client={client} dict={dict} magasinId={context.magasinId} entreprise={entreprise} />
                 </td>
               </tr>
             ))}
