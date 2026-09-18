@@ -311,9 +311,12 @@
     "colDate": "التاريخ",
     "colCompte": "الحساب",
     "colCategorie": "الفئة",
+    "colTiers": "الطرف",
     "colMotif": "السبب",
     "colMontant": "المبلغ",
     "emptyMouvements": "لا توجد حركات",
+    "toutesComptes": "كل الحسابات",
+    "soldeCompteFiltre": "الرصيد",
     "newEcritureButton": "قيد جديد",
     "newEcritureTitle": "قيد جديد",
     "compteLabel": "الحساب",
@@ -329,7 +332,14 @@
     "confirmDeleteEcriture": "حذف هذا القيد؟",
     "ecritureUpdated": "تم تعديل القيد",
     "ecritureDeleted": "تم حذف القيد",
-    "linkedNotice": "مرتبط — أدره من مصدره"
+    "linkedNotice": "مرتبط — أدره من مصدره",
+    "origines": {
+      "vente": "بيع",
+      "achat": "شراء",
+      "creance": "دين مستحق",
+      "dette": "دين مستحق عليك",
+      "charge": "مصروف"
+    }
   },
   "charges": {
     "title": "المصاريف",

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant } from '@/lib/auth/getCurrentUserContext'
 import { Wallet, Landmark, Smartphone } from 'lucide-react'
@@ -12,12 +13,24 @@ const iconParType: Record<string, typeof Wallet> = {
   mobile_money: Smartphone,
 }
 
-export default async function TresoreriePage() {
+function formatDateJJMMAAAA(iso: string) {
+  const d = new Date(iso)
+  const jj = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  return `${jj}/${mm}/${d.getFullYear()}`
+}
+
+export default async function TresoreriePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ compte?: string }>
+}) {
   const context = await requireGerant()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.tresorerie
   const c = dict.common
+  const compteFiltreId = (await searchParams)?.compte
 
   const { data: comptes } = await supabase
     .from('comptes_tresorerie')
@@ -25,10 +38,12 @@ export default async function TresoreriePage() {
     .eq('magasin_id', context.magasinId)
     .order('nom')
 
-  const { data: mouvements } = await supabase
+  let mouvementsQuery = supabase
     .from('journal_tresorerie')
-    .select('id, compte_tresorerie_id, type_mouvement, montant, categorie, motif, date_mouvement, reference_type')
+    .select('id, compte_tresorerie_id, type_mouvement, montant, categorie, motif, date_mouvement, reference_id, reference_type')
     .eq('magasin_id', context.magasinId)
+  if (compteFiltreId) mouvementsQuery = mouvementsQuery.eq('compte_tresorerie_id', compteFiltreId)
+  const { data: mouvements } = await mouvementsQuery
     .order('date_mouvement', { ascending: false })
     .limit(50)
 
@@ -39,6 +54,62 @@ export default async function TresoreriePage() {
     soldeParCompte.set(m.compte_tresorerie_id, courant + (m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)))
   }
   const compteParId = new Map((comptes ?? []).map((c) => [c.id, c]))
+  const compteFiltre = compteFiltreId ? compteParId.get(compteFiltreId) : undefined
+
+  // reference_id/reference_type est une référence polymorphe (vente, achat,
+  // créance, dette) — PostgREST ne peut pas l'embarquer automatiquement, d'où
+  // ces requêtes de résolution manuelles pour retrouver le tiers (client ou
+  // fournisseur) de chaque écriture liée.
+  const idsParType = { vente: new Set<string>(), achat: new Set<string>(), creance: new Set<string>(), dette: new Set<string>() }
+  for (const m of mouvements ?? []) {
+    if (m.reference_id && m.reference_type && m.reference_type in idsParType) {
+      idsParType[m.reference_type as keyof typeof idsParType].add(m.reference_id)
+    }
+  }
+
+  const [{ data: ventesData }, { data: achatsData }, { data: creancesData }, { data: dettesData }] = await Promise.all([
+    idsParType.vente.size ? supabase.from('ventes').select('id, client_id').in('id', [...idsParType.vente]) : Promise.resolve({ data: [] as { id: string; client_id: string | null }[] }),
+    idsParType.achat.size ? supabase.from('achats').select('id, fournisseur_id').in('id', [...idsParType.achat]) : Promise.resolve({ data: [] as { id: string; fournisseur_id: string | null }[] }),
+    idsParType.creance.size ? supabase.from('creances').select('id, client_id').in('id', [...idsParType.creance]) : Promise.resolve({ data: [] as { id: string; client_id: string | null }[] }),
+    idsParType.dette.size ? supabase.from('dettes').select('id, fournisseur_id').in('id', [...idsParType.dette]) : Promise.resolve({ data: [] as { id: string; fournisseur_id: string | null }[] }),
+  ])
+
+  const clientIdParVenteId = new Map((ventesData ?? []).map((v) => [v.id, v.client_id]))
+  const fournisseurIdParAchatId = new Map((achatsData ?? []).map((a) => [a.id, a.fournisseur_id]))
+  const clientIdParCreanceId = new Map((creancesData ?? []).map((cr) => [cr.id, cr.client_id]))
+  const fournisseurIdParDetteId = new Map((dettesData ?? []).map((d) => [d.id, d.fournisseur_id]))
+
+  const clientIds = new Set([...clientIdParVenteId.values(), ...clientIdParCreanceId.values()].filter((id): id is string => !!id))
+  const fournisseurIds = new Set([...fournisseurIdParAchatId.values(), ...fournisseurIdParDetteId.values()].filter((id): id is string => !!id))
+
+  const [{ data: clientsData }, { data: fournisseursData }] = await Promise.all([
+    clientIds.size ? supabase.from('clients').select('id, nom').in('id', [...clientIds]) : Promise.resolve({ data: [] as { id: string; nom: string }[] }),
+    fournisseurIds.size ? supabase.from('fournisseurs').select('id, nom').in('id', [...fournisseurIds]) : Promise.resolve({ data: [] as { id: string; nom: string }[] }),
+  ])
+
+  const clientNomParId = new Map((clientsData ?? []).map((cl) => [cl.id, cl.nom]))
+  const fournisseurNomParId = new Map((fournisseursData ?? []).map((f) => [f.id, f.nom]))
+
+  function tiersPour(m: { reference_id: string | null; reference_type: string | null }): string {
+    if (!m.reference_id || !m.reference_type) return '-'
+    if (m.reference_type === 'vente') {
+      const clientId = clientIdParVenteId.get(m.reference_id)
+      return (clientId && clientNomParId.get(clientId)) || '-'
+    }
+    if (m.reference_type === 'achat') {
+      const fournisseurId = fournisseurIdParAchatId.get(m.reference_id)
+      return (fournisseurId && fournisseurNomParId.get(fournisseurId)) || '-'
+    }
+    if (m.reference_type === 'creance') {
+      const clientId = clientIdParCreanceId.get(m.reference_id)
+      return (clientId && clientNomParId.get(clientId)) || '-'
+    }
+    if (m.reference_type === 'dette') {
+      const fournisseurId = fournisseurIdParDetteId.get(m.reference_id)
+      return (fournisseurId && fournisseurNomParId.get(fournisseurId)) || '-'
+    }
+    return '-'
+  }
 
   return (
     <div>
@@ -56,8 +127,13 @@ export default async function TresoreriePage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(comptes ?? []).map((compte) => {
           const Icon = iconParType[compte.type_compte] ?? Wallet
+          const estSelectionne = compte.id === compteFiltreId
           return (
-            <div key={compte.id} className="overflow-hidden rounded-xl bg-surface p-6 shadow-sm border border-surface-border">
+            <Link
+              key={compte.id}
+              href={estSelectionne ? '?' : `?compte=${compte.id}`}
+              className={`overflow-hidden rounded-xl bg-surface p-6 shadow-sm border transition-colors ${estSelectionne ? 'border-primary ring-2 ring-primary/30' : 'border-surface-border hover:border-primary/50'}`}
+            >
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-primary/10 p-2.5 shrink-0">
                   <Icon className="h-5 w-5 text-primary" />
@@ -68,7 +144,7 @@ export default async function TresoreriePage() {
                 </div>
               </div>
               <p className="mt-4 text-2xl font-bold text-foreground">{(soldeParCompte.get(compte.id) ?? 0).toLocaleString('fr-FR')}</p>
-            </div>
+            </Link>
           )
         })}
         {(comptes ?? []).length === 0 && (
@@ -76,7 +152,19 @@ export default async function TresoreriePage() {
         )}
       </div>
 
-      <h3 className="mt-10 mb-4 text-lg font-semibold text-foreground">{t.journal}</h3>
+      <div className="mt-10 mb-4 flex items-center justify-between flex-wrap gap-2">
+        <h3 className="text-lg font-semibold text-foreground">
+          {t.journal}
+          {compteFiltre && (
+            <span className="ml-2 text-sm font-normal text-foreground-muted">
+              — {compteFiltre.nom} · {t.soldeCompteFiltre} : {(soldeParCompte.get(compteFiltre.id) ?? 0).toLocaleString('fr-FR')}
+            </span>
+          )}
+        </h3>
+        {compteFiltre && (
+          <Link href="?" className="text-sm font-medium text-primary hover:underline">{t.toutesComptes}</Link>
+        )}
+      </div>
       <div className="overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
         <table className="min-w-full divide-y divide-surface-border">
           <thead className="bg-background/50">
@@ -84,6 +172,7 @@ export default async function TresoreriePage() {
               <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCompte}</th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colCategorie}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colTiers}</th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colMotif}</th>
               <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colMontant}</th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -95,17 +184,18 @@ export default async function TresoreriePage() {
             {(mouvements ?? []).map((m) => (
               <tr key={m.id}>
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-foreground-muted sm:pl-6">
-                  {m.date_mouvement ? new Date(m.date_mouvement).toLocaleString('fr-FR') : '-'}
+                  {m.date_mouvement ? formatDateJJMMAAAA(m.date_mouvement) : '-'}
                 </td>
                 <td className="px-3 py-4 text-sm text-foreground">{compteParId.get(m.compte_tresorerie_id)?.nom ?? '-'}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted capitalize">{(m.categorie ?? '-').replace('_', ' ')}</td>
+                <td className="px-3 py-4 text-sm text-foreground-muted">{tiersPour(m)}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{m.motif || '-'}</td>
                 <td className={`px-3 py-4 text-sm text-right font-medium ${m.type_mouvement === 'entree' ? 'text-success' : 'text-danger'}`}>
                   {m.type_mouvement === 'entree' ? '+' : '-'}{Number(m.montant).toLocaleString('fr-FR')}
                 </td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                   {m.reference_type ? (
-                    <span className="text-xs text-foreground-muted">{t.linkedNotice}</span>
+                    <span className="text-xs text-foreground-muted">{t.origines[m.reference_type as keyof typeof t.origines] ?? t.linkedNotice}</span>
                   ) : (
                     <EcritureRowActions ecriture={m} comptes={comptes ?? []} dict={dict} />
                   )}
@@ -114,7 +204,7 @@ export default async function TresoreriePage() {
             ))}
             {(mouvements ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMouvements}</td>
+                <td colSpan={7} className="py-8 text-center text-sm text-foreground-muted">{t.emptyMouvements}</td>
               </tr>
             )}
           </tbody>

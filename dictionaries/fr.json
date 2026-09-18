@@ -311,9 +311,12 @@
     "colDate": "Date",
     "colCompte": "Compte",
     "colCategorie": "Catégorie",
+    "colTiers": "Tiers",
     "colMotif": "Motif",
     "colMontant": "Montant",
     "emptyMouvements": "Aucun mouvement",
+    "toutesComptes": "Tous les comptes",
+    "soldeCompteFiltre": "Solde",
     "newEcritureButton": "Nouvelle écriture",
     "newEcritureTitle": "Nouvelle écriture",
     "compteLabel": "Compte",
@@ -329,7 +332,14 @@
     "confirmDeleteEcriture": "Supprimer cette écriture ?",
     "ecritureUpdated": "Écriture modifiée",
     "ecritureDeleted": "Écriture supprimée",
-    "linkedNotice": "Liée — gérer depuis l'origine"
+    "linkedNotice": "Liée — gérer depuis l'origine",
+    "origines": {
+      "vente": "Vente",
+      "achat": "Achat",
+      "creance": "Créance",
+      "dette": "Dette",
+      "charge": "Charge"
+    }
   },
   "charges": {
     "title": "Charges",

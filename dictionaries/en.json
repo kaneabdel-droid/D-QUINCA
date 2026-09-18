@@ -311,9 +311,12 @@
     "colDate": "Date",
     "colCompte": "Account",
     "colCategorie": "Category",
+    "colTiers": "Party",
     "colMotif": "Reason",
     "colMontant": "Amount",
     "emptyMouvements": "No movements",
+    "toutesComptes": "All accounts",
+    "soldeCompteFiltre": "Balance",
     "newEcritureButton": "New entry",
     "newEcritureTitle": "New entry",
     "compteLabel": "Account",
@@ -329,7 +332,14 @@
     "confirmDeleteEcriture": "Delete this entry?",
     "ecritureUpdated": "Entry updated",
     "ecritureDeleted": "Entry deleted",
-    "linkedNotice": "Linked — manage from its origin"
+    "linkedNotice": "Linked — manage from its origin",
+    "origines": {
+      "vente": "Sale",
+      "achat": "Purchase",
+      "creance": "Receivable",
+      "dette": "Payable",
+      "charge": "Expense"
+    }
   },
   "charges": {
     "title": "Expenses",
