@@ -87,6 +87,42 @@ export default async function TresoreriePage({
   const compteParId = new Map((comptes ?? []).map((c) => [c.id, c]))
   const compteFiltre = compteFiltreId ? compteParId.get(compteFiltreId) : undefined
 
+  // Solde initial/final de l'impression : les comptes concernés sont soit le
+  // seul compte filtré, soit tous les comptes du magasin quand aucun filtre
+  // n'est actif. Le solde initial part du solde_initial de ces comptes et
+  // ajoute tous LEURS mouvements antérieurs à "from" (sans la limite de 50
+  // lignes de l'affichage, pour rester exact même au-delà) ; le solde final
+  // y ajoute ensuite le mouvement net de la période imprimée.
+  const comptesInclus = compteFiltre ? [compteFiltre] : (comptes ?? [])
+  const comptesInclusIds = comptesInclus.map((cpt) => cpt.id)
+  let soldeInitialPeriode = comptesInclus.reduce((s, cpt) => s + Number(cpt.solde_initial), 0)
+  if (from && comptesInclusIds.length) {
+    const { data: mouvementsAvant } = await supabase
+      .from('journal_tresorerie')
+      .select('type_mouvement, montant')
+      .eq('magasin_id', context.magasinId)
+      .in('compte_tresorerie_id', comptesInclusIds)
+      .lt('date_mouvement', from)
+    for (const m of mouvementsAvant ?? []) {
+      soldeInitialPeriode += m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)
+    }
+  }
+  let netPeriode = 0
+  if (comptesInclusIds.length) {
+    let netQuery = supabase
+      .from('journal_tresorerie')
+      .select('type_mouvement, montant')
+      .eq('magasin_id', context.magasinId)
+      .in('compte_tresorerie_id', comptesInclusIds)
+    if (from) netQuery = netQuery.gte('date_mouvement', from)
+    if (to) netQuery = netQuery.lte('date_mouvement', `${to}T23:59:59`)
+    const { data: mouvementsNetPeriode } = await netQuery
+    for (const m of mouvementsNetPeriode ?? []) {
+      netPeriode += m.type_mouvement === 'entree' ? Number(m.montant) : -Number(m.montant)
+    }
+  }
+  const soldeFinalPeriode = soldeInitialPeriode + netPeriode
+
   // reference_id/reference_type est une référence polymorphe (vente, achat,
   // créance, dette) — PostgREST ne peut pas l'embarquer automatiquement, d'où
   // ces requêtes de résolution manuelles pour retrouver le tiers (client ou
@@ -207,6 +243,8 @@ export default async function TresoreriePage({
           magasinNom={context.magasinNom ?? ''}
           titre={compteFiltre ? `${t.journal} — ${compteFiltre.nom}` : t.journal}
           periodeLabel={from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes}
+          soldeInitial={formatMontantPdf(soldeInitialPeriode, context.entrepriseDevise)}
+          soldeFinal={formatMontantPdf(soldeFinalPeriode, context.entrepriseDevise)}
           colonnes={[
             { header: t.colDate },
             { header: t.colCompte },

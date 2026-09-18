@@ -57,7 +57,9 @@
     "ticketTotal": "الإجمالي",
     "ticketPaye": "المدفوع",
     "ticketReste": "المتبقي",
-    "ticketSolde": "مسدد"
+    "ticketSolde": "مسدد",
+    "soldeInitial": "الرصيد الافتتاحي",
+    "soldeFinal": "الرصيد الختامي"
   },
   "releves": {
     "buttonLabel": "كشف حساب",
@@ -67,6 +69,7 @@
     "colLibelle": "البيان",
     "colDebit": "مدين",
     "colCredit": "دائن",
+    "soldeInitial": "الرصيد الافتتاحي",
     "soldeFinal": "الرصيد النهائي",
     "empty": "لا توجد عمليات خلال هذه الفترة",
     "libelleVente": "بيع",

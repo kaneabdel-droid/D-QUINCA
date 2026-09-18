@@ -71,6 +71,48 @@ async function chargerOperationsClient(
   return operations
 }
 
+// Solde du client juste avant "from" (0 si aucune date de début n'est
+// choisie, puisqu'alors l'impression couvre déjà tout l'historique) : même
+// logique débit/crédit que chargerOperationsClient, mais nettée en un seul
+// nombre plutôt que listée opération par opération.
+async function calculerSoldeAvantClient(
+  supabase: SupabaseClient,
+  magasinId: string | null,
+  clientId: string,
+  from: string
+): Promise<number> {
+  if (!from) return 0
+  let vq = supabase
+    .from('ventes')
+    .select('montant_total, montant_paye')
+    .eq('client_id', clientId)
+    .eq('statut', 'validee')
+    .lt('date_vente', from)
+  if (magasinId) vq = vq.eq('magasin_id', magasinId)
+  const { data: ventes } = await vq
+
+  let cq = supabase.from('creances').select('id').eq('client_id', clientId)
+  if (magasinId) cq = cq.eq('magasin_id', magasinId)
+  const { data: creances } = await cq
+  const creanceIds = (creances ?? []).map((c) => c.id)
+
+  let reglements: { montant: number }[] = []
+  if (creanceIds.length) {
+    const { data } = await supabase
+      .from('journal_tresorerie')
+      .select('montant')
+      .eq('reference_type', 'creance')
+      .in('reference_id', creanceIds)
+      .lt('date_mouvement', from)
+    reglements = data ?? []
+  }
+
+  let solde = 0
+  for (const v of ventes ?? []) solde += Number(v.montant_total) - Number(v.montant_paye)
+  for (const r of reglements) solde -= Number(r.montant)
+  return solde
+}
+
 async function chargerOperationsFournisseur(
   supabase: SupabaseClient,
   magasinId: string | null,
@@ -121,6 +163,44 @@ async function chargerOperationsFournisseur(
   return operations
 }
 
+async function calculerSoldeAvantFournisseur(
+  supabase: SupabaseClient,
+  magasinId: string | null,
+  fournisseurId: string,
+  from: string
+): Promise<number> {
+  if (!from) return 0
+  let aq = supabase
+    .from('achats')
+    .select('montant_total, montant_paye')
+    .eq('fournisseur_id', fournisseurId)
+    .eq('statut', 'validee')
+    .lt('date_achat', from)
+  if (magasinId) aq = aq.eq('magasin_id', magasinId)
+  const { data: achats } = await aq
+
+  let dq = supabase.from('dettes').select('id').eq('fournisseur_id', fournisseurId)
+  if (magasinId) dq = dq.eq('magasin_id', magasinId)
+  const { data: dettes } = await dq
+  const detteIds = (dettes ?? []).map((d) => d.id)
+
+  let reglements: { montant: number }[] = []
+  if (detteIds.length) {
+    const { data } = await supabase
+      .from('journal_tresorerie')
+      .select('montant')
+      .eq('reference_type', 'dette')
+      .in('reference_id', detteIds)
+      .lt('date_mouvement', from)
+    reglements = data ?? []
+  }
+
+  let solde = 0
+  for (const a of achats ?? []) solde += Number(a.montant_total) - Number(a.montant_paye)
+  for (const r of reglements) solde -= Number(r.montant)
+  return solde
+}
+
 export default function ReleveModal({
   onClose,
   releveType,
@@ -154,10 +234,16 @@ export default function ReleveModal({
     setError(null)
     try {
       const supabase = createClient()
-      const operations =
+      const [operations, soldeAvant] =
         releveType === 'client'
-          ? await chargerOperationsClient(supabase, magasinId, referenceId, from, to, t)
-          : await chargerOperationsFournisseur(supabase, magasinId, referenceId, from, to, t)
+          ? await Promise.all([
+              chargerOperationsClient(supabase, magasinId, referenceId, from, to, t),
+              calculerSoldeAvantClient(supabase, magasinId, referenceId, from),
+            ])
+          : await Promise.all([
+              chargerOperationsFournisseur(supabase, magasinId, referenceId, from, to, t),
+              calculerSoldeAvantFournisseur(supabase, magasinId, referenceId, from),
+            ])
 
       const doc = new jsPDF({ orientation })
       const pageWidth = doc.internal.pageSize.getWidth()
@@ -190,6 +276,11 @@ export default function ReleveModal({
       doc.setFontSize(9)
       doc.setTextColor(120, 120, 120)
       doc.text(periodeLabel, 14, y + 12)
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(9)
+      doc.setTextColor(80, 80, 80)
+      doc.text(`${t.soldeInitial} : ${formatMontantPdf(soldeAvant, devise)}`, pageWidth - 14, y + 12, { align: 'right' })
 
       doc.setDrawColor(30, 86, 49)
       doc.line(14, y + 16, pageWidth - 14, y + 16)
@@ -232,7 +323,7 @@ export default function ReleveModal({
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(11)
       doc.setTextColor(30, 86, 49)
-      doc.text(`${t.soldeFinal} : ${formatMontantPdf(Math.abs(totalDebit - totalCredit), devise)}`, pageWidth - 14, finalY + 10, { align: 'right' })
+      doc.text(`${t.soldeFinal} : ${formatMontantPdf(soldeAvant + totalDebit - totalCredit, devise)}`, pageWidth - 14, finalY + 10, { align: 'right' })
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)

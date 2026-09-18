@@ -57,7 +57,9 @@
     "ticketTotal": "Total",
     "ticketPaye": "Payé",
     "ticketReste": "Reste à payer",
-    "ticketSolde": "Soldé"
+    "ticketSolde": "Soldé",
+    "soldeInitial": "Solde initial",
+    "soldeFinal": "Solde final"
   },
   "releves": {
     "buttonLabel": "Relevé",
@@ -67,6 +69,7 @@
     "colLibelle": "Libellé",
     "colDebit": "Débit",
     "colCredit": "Crédit",
+    "soldeInitial": "Solde initial",
     "soldeFinal": "Solde final",
     "empty": "Aucune opération sur cette période",
     "libelleVente": "Vente",

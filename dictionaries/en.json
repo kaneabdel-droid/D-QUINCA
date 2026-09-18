@@ -57,7 +57,9 @@
     "ticketTotal": "Total",
     "ticketPaye": "Paid",
     "ticketReste": "Balance due",
-    "ticketSolde": "Settled"
+    "ticketSolde": "Settled",
+    "soldeInitial": "Opening balance",
+    "soldeFinal": "Closing balance"
   },
   "releves": {
     "buttonLabel": "Statement",
@@ -67,6 +69,7 @@
     "colLibelle": "Description",
     "colDebit": "Debit",
     "colCredit": "Credit",
+    "soldeInitial": "Opening balance",
     "soldeFinal": "Final balance",
     "empty": "No transactions for this period",
     "libelleVente": "Sale",

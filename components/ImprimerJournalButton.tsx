@@ -22,6 +22,8 @@ export default function ImprimerJournalButton({
   magasinNom,
   titre,
   periodeLabel,
+  soldeInitial,
+  soldeFinal,
   colonnes,
   lignes,
   totalLigne,
@@ -32,6 +34,11 @@ export default function ImprimerJournalButton({
   magasinNom: string
   titre: string
   periodeLabel?: string
+  // Uniquement pertinent pour un journal adossé à un solde réel (trésorerie) —
+  // les autres journaux (charges, ventes, achats, créances, dettes) n'ont pas
+  // de notion de solde et laissent ces deux props non renseignées.
+  soldeInitial?: string
+  soldeFinal?: string
   colonnes: Colonne[]
   lignes: (string | number)[][]
   totalLigne?: (string | number)[]
@@ -76,6 +83,13 @@ export default function ImprimerJournalButton({
         y += 6
       }
 
+      if (soldeInitial) {
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(9)
+        doc.setTextColor(80, 80, 80)
+        doc.text(`${t.soldeInitial} : ${soldeInitial}`, pageWidth - 14, y + 6, { align: 'right' })
+      }
+
       doc.setDrawColor(30, 86, 49)
       doc.line(14, y + 10, pageWidth - 14, y + 10)
 
@@ -100,6 +114,15 @@ export default function ImprimerJournalButton({
         }, {}),
       })
 
+      if (soldeFinal) {
+        const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y + 30
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(11)
+        doc.setTextColor(30, 86, 49)
+        doc.text(`${t.soldeFinal} : ${soldeFinal}`, pageWidth - 14, finalY + 10, { align: 'right' })
+      }
+
+      doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(160, 160, 160)
       doc.text(`${t.imprimeLe} ${new Date().toLocaleString('fr-FR')}`, 14, doc.internal.pageSize.getHeight() - 8)
