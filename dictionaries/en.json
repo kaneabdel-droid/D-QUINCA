@@ -103,6 +103,7 @@
   "home": {
     "title": "D-QUINCA",
     "tagline": "The management solution for hardware stores in Africa. Track your stock, sales and stores with ease.",
+    "backToDemba": "Back to home",
     "subscribe": "Subscribe",
     "discover": "Discover →",
     "features": {
@@ -112,7 +113,7 @@
     }
   },
   "decouvrir": {
-    "backHome": "Back to home",
+    "backHome": "Back",
     "heroTitlePrefix": "How does",
     "heroTitleSuffix": "work?",
     "heroSubtitle": "Stock, sales, purchases, receivables/debts and cash flow — one or several stores, a single dashboard.",
