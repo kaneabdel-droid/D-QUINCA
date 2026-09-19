@@ -107,10 +107,62 @@
     "subscribe": "S'abonner",
     "discover": "Découvrir →",
     "features": {
-      "stock": { "title": "Stock en temps réel", "desc": "Suivez vos entrées et sorties, magasin par magasin, sans feuille de calcul." },
-      "ventes": { "title": "Ventes & achats", "desc": "Facturez vos clients, gérez vos fournisseurs, suivez créances et dettes." },
-      "magasins": { "title": "Plusieurs magasins", "desc": "Une vue consolidée de toute votre entreprise, et le détail par magasin." }
-    }
+      "stock": {
+        "title": "Stock en temps réel",
+        "desc": "Suivez vos entrées et sorties, magasin par magasin, sans feuille de calcul."
+      },
+      "ventes": {
+        "title": "Ventes & achats",
+        "desc": "Facturez vos clients, gérez vos fournisseurs, suivez créances et dettes."
+      },
+      "magasins": {
+        "title": "Plusieurs magasins",
+        "desc": "Une vue consolidée de toute votre entreprise, et le détail par magasin."
+      }
+    },
+    "eyebrow": "Gestion de quincaillerie",
+    "heroA": "Vendez mieux.",
+    "heroB": "Stockez juste.",
+    "stats": [
+      [
+        "Multi-magasins",
+        "Vue consolidée"
+      ],
+      [
+        "Temps réel",
+        "Stocks à jour"
+      ],
+      [
+        "3 langues",
+        "FR · EN · AR"
+      ],
+      [
+        "Créances",
+        "Suivies au centime"
+      ]
+    ],
+    "solutionsEyebrow": "Nos solutions",
+    "solutionsTitle": "Tout ce qu'il faut pour piloter votre quincaillerie",
+    "learn": "En savoir plus",
+    "howEyebrow": "Comment ça marche",
+    "howTitle": "Prêt en quelques minutes, fiable pour des années",
+    "steps": [
+      [
+        "Créez votre espace",
+        "Ajoutez vos magasins et votre catalogue d'articles."
+      ],
+      [
+        "Enregistrez vos flux",
+        "Achats, ventes et transferts alimentent le stock automatiquement."
+      ],
+      [
+        "Pilotez en confiance",
+        "Suivez marges, créances et dettes d'un seul coup d'œil."
+      ]
+    ],
+    "ctaEyebrow": "Pour commencer",
+    "ctaTitle": "Prêt à reprendre la main sur votre quincaillerie ?",
+    "ctaSub": "Choisissez une formule adaptée à la taille de votre activité."
   },
   "decouvrir": {
     "backHome": "Retour",
@@ -128,10 +180,22 @@
     "demoGerant2Role": "Gérant, Thiès",
     "demoNote": "Cet espace est partagé entre tous les visiteurs — évitez d'y saisir des informations réelles.",
     "modulesTitle": "Un circuit complet, magasin par magasin",
-    "moduleStock": { "title": "Stock en temps réel", "desc": "Catégories, articles, seuils d'alerte et historique des mouvements." },
-    "moduleVentes": { "title": "Ventes & achats", "desc": "Comptant, crédit ou mixte, avec reçu et suivi des marges." },
-    "moduleCreances": { "title": "Créances & dettes", "desc": "Qui vous doit, à qui vous devez, réglé en un clic." },
-    "moduleTresorerie": { "title": "Trésorerie", "desc": "Caisse, mobile money, banque — journal complet des mouvements." },
+    "moduleStock": {
+      "title": "Stock en temps réel",
+      "desc": "Catégories, articles, seuils d'alerte et historique des mouvements."
+    },
+    "moduleVentes": {
+      "title": "Ventes & achats",
+      "desc": "Comptant, crédit ou mixte, avec reçu et suivi des marges."
+    },
+    "moduleCreances": {
+      "title": "Créances & dettes",
+      "desc": "Qui vous doit, à qui vous devez, réglé en un clic."
+    },
+    "moduleTresorerie": {
+      "title": "Trésorerie",
+      "desc": "Caisse, mobile money, banque — journal complet des mouvements."
+    },
     "cta": "S'abonner"
   },
   "auth": {

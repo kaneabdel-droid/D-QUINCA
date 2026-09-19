@@ -5,18 +5,18 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Palette premium D-QUINCA - Quincaillerie Ouest-Africaine (vert savane / ocre) */
-  --background: #ECEFEF;
+  /* Palette premium D-QUINCA - Quincaillerie Ouest-Africaine (olive / crème) */
+  --background: #F5F2EB;
   --surface: #FFFFFF;
-  --surface-border: #E2E8F0;
-  --foreground: #09090b;
-  --foreground-muted: #334155;
-  --sidebar: #F4F6F5;
+  --surface-border: #E4DFD3;
+  --foreground: #111111;
+  --foreground-muted: #666666;
+  --sidebar: #ECE7DC;
 
-  --primary: #1E5631;
-  --primary-hover: #2F855A;
+  --primary: #3D6E3F;
+  --primary-hover: #2F5731;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: #D97706;
+  --secondary: #7C9A4B;
   --secondary-foreground: oklch(0.985 0 0);
   --danger: #E74C3C;
   --success: #16A34A;
@@ -115,15 +115,15 @@ body {
 }
 
 .dark {
-  --background: #0F1923;
-  --surface: #1A2634;
-  --surface-border: #2A3B4D;
-  --foreground: #E8ECF1;
-  --foreground-muted: #8899AA;
-  --sidebar: #16212C;
+  --background: #0A1B12;
+  --surface: #11291B;
+  --surface-border: #1F3A2A;
+  --foreground: #F5F2EB;
+  --foreground-muted: #9DB0A3;
+  --sidebar: #0E2217;
 
-  --primary: #2F855A;
-  --primary-hover: #40916C;
+  --primary: #5C9560;
+  --primary-hover: #6FAA73;
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface);
