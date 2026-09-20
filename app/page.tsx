@@ -109,7 +109,7 @@ export default async function HomePage() {
       </section>
 
       {/* How it works (dark band) */}
-      <section className="bg-[#0A1B12] text-[#F5F2EB]">
+      <section className="bg-[#2E2118] text-[#F5F2EB]">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <p className="text-xs font-semibold uppercase tracking-widest text-secondary">{h.howEyebrow}</p>
           <h2 className="mt-3 max-w-xl font-heading text-3xl font-bold">{h.howTitle}</h2>
@@ -118,7 +118,7 @@ export default async function HomePage() {
               <li key={i}>
                 <span className="font-heading text-4xl font-bold text-secondary">0{i + 1}</span>
                 <h3 className="mt-3 font-semibold">{title}</h3>
-                <p className="mt-1 text-sm text-[#9DB0A3]">{desc}</p>
+                <p className="mt-1 text-sm text-[#C2B2A0]">{desc}</p>
               </li>
             ))}
           </ol>
