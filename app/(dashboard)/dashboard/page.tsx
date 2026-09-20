@@ -5,8 +5,13 @@ import { projeterCourtTerme, type PointJournalier } from '@/lib/analytics/projec
 import { AlertTriangle, DollarSign, HandCoins, ShoppingCart, TrendingUp, Wallet } from 'lucide-react'
 import { getDictionary, getLocale } from '@/dictionaries'
 import VentesTrendChart from './VentesTrendChart'
+import CompteExploitation from './CompteExploitation'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ annee?: string }> }) {
+  const { annee: anneeParam } = await searchParams
+  const anneeCourante = new Date().getFullYear()
+  const anneeDemandee = Number(anneeParam)
+  const annee = Number.isInteger(anneeDemandee) && anneeDemandee >= anneeCourante - 2 && anneeDemandee <= anneeCourante ? anneeDemandee : anneeCourante
   const context = await getCurrentUserContext()
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
@@ -80,6 +85,8 @@ export default async function DashboardPage() {
           ))}
         </div>
 
+        <CompteExploitation magasinIds={[context.magasinId!]} annee={annee} devise={context.entrepriseDevise} />
+
         <div className="bg-surface rounded-xl border border-surface-border p-4 sm:p-6">
           <h2 className="font-semibold text-foreground mb-4">{t.evolutionVentes}</h2>
           {historique.length > 0 ? (
@@ -134,6 +141,8 @@ export default async function DashboardPage() {
           </div>
         ))}
       </div>
+
+      <CompteExploitation magasinIds={magasinIds} annee={annee} devise={context.entrepriseDevise} />
 
       <div className="flex flex-wrap gap-3">
         <Link href="/comparatif" className="rounded-md bg-surface border border-surface-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background">

@@ -447,7 +447,9 @@
       "creance": "Receivable",
       "dette": "Payable",
       "charge": "Expense"
-    }
+    },
+    "categorieRemboursement": "Reimbursement",
+    "categorieRetrait": "Cash withdrawal"
   },
   "charges": {
     "title": "Expenses",
@@ -522,7 +524,24 @@
     "voirComparatif": "View store comparison →",
     "voirRentabilite": "View detailed profitability →",
     "chartVentes": "Sales",
-    "chartProjection": "Projection"
+    "chartProjection": "Projection",
+    "ceTitle": "Operating account",
+    "ceExercice": "Year",
+    "ceMontantsEn": "Amounts in",
+    "ceCa": "Revenue",
+    "ceAchats": "Purchases",
+    "ceMarge": "Trading margin",
+    "ceAutresProduits": "Other income",
+    "ceAutresCharges": "Other expenses",
+    "ceEbe": "Gross operating surplus",
+    "ceTotal": "Total",
+    "ceTrimestres": [
+      "March",
+      "June",
+      "September",
+      "December"
+    ],
+    "ceNote": "Quarters: Jan–Mar, Apr–Jun, Jul–Sep, Oct–Dec. Other income: treasury inflows in the “other” category (excluding receivable settlements, reimbursements and transfers). Other expenses: recorded expenses and “other” outflows (excluding debt payments and cash withdrawals)."
   },
   "tarifs": {
     "back": "Back",
