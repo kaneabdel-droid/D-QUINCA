@@ -63,8 +63,12 @@ export default async function HomePage() {
         </div>
         <div className="rounded-3xl bg-primary p-8 text-white shadow-lg">
           <div className="space-y-3">
-            {features.map(({ icon: Icon, key }) => (
-              <div key={key} className="flex items-center gap-4 rounded-2xl bg-white/10 p-5">
+            {features.map(({ icon: Icon, key }, i) => (
+              <div
+                key={key}
+                className="drop-in flex items-center gap-4 rounded-2xl bg-white/10 p-5"
+                style={{ '--drop-delay': `${0.3 + i * 0.25}s` } as React.CSSProperties}
+              >
                 <Icon className="h-6 w-6 text-secondary" />
                 <p className="font-heading text-lg font-semibold">{h.features[key].title}</p>
               </div>
