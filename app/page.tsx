@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Boxes, Receipt, Store } from 'lucide-react'
 import LanguageSelector from '@/components/LanguageSelector'
+import RevealGroup from '@/components/RevealGroup'
 import { getDictionary, getLocale } from '@/dictionaries'
 
 export default async function HomePage() {
@@ -67,7 +68,7 @@ export default async function HomePage() {
               <div
                 key={key}
                 className="drop-in flex items-center gap-4 rounded-2xl bg-white/10 p-5"
-                style={{ '--drop-delay': `${0.3 + i * 0.25}s` } as React.CSSProperties}
+                style={{ '--drop-delay': `${0.3 + i * 0.5}s` } as React.CSSProperties}
               >
                 <Icon className="h-6 w-6 text-secondary" />
                 <p className="font-heading text-lg font-semibold">{h.features[key].title}</p>
@@ -93,9 +94,13 @@ export default async function HomePage() {
       <section id="fonctionnalites" className="mx-auto max-w-6xl px-6 py-20">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">{h.solutionsEyebrow}</p>
         <h2 className="mt-3 max-w-xl font-heading text-3xl font-bold">{h.solutionsTitle}</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {features.map(({ icon: Icon, key }) => (
-            <div key={key} className="rounded-2xl border border-surface-border bg-surface p-6">
+        <RevealGroup className="mt-10 grid gap-6 md:grid-cols-3">
+          {features.map(({ icon: Icon, key }, i) => (
+            <div
+              key={key}
+              className="reveal rounded-2xl border border-surface-border bg-surface p-6"
+              style={{ '--reveal-index': i } as React.CSSProperties}
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar text-primary">
                 <Icon className="h-5 w-5" />
               </div>
@@ -109,7 +114,7 @@ export default async function HomePage() {
               </Link>
             </div>
           ))}
-        </div>
+        </RevealGroup>
       </section>
 
       {/* How it works (dark band) */}
