@@ -64,16 +64,16 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-        <div className="rounded-3xl bg-primary p-8 text-white shadow-lg">
-          <div className="space-y-3">
+        <div className="rounded-3xl bg-primary/85 p-6 text-white shadow-lg">
+          <div className="space-y-2">
             {features.map(({ icon: Icon, key }, i) => (
               <div
                 key={key}
-                className="drop-in flex items-center gap-4 rounded-2xl bg-white/10 p-5"
+                className="drop-in flex items-center gap-3 rounded-xl bg-white/10 p-3.5"
                 style={{ '--drop-delay': `${0.3 + i * 1}s` } as React.CSSProperties}
               >
-                <Icon className="h-6 w-6 text-secondary" />
-                <p className="font-heading text-lg font-semibold">{h.features[key].title}</p>
+                <Icon className="h-5 w-5 shrink-0 text-secondary" />
+                <p className="font-heading text-base font-semibold">{h.features[key].title}</p>
               </div>
             ))}
           </div>
