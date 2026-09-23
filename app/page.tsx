@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Boxes, Receipt, Store } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Boxes, HandCoins, Receipt, Store, Wallet } from 'lucide-react'
 import LanguageSelector from '@/components/LanguageSelector'
 import RevealGroup from '@/components/RevealGroup'
 import { getDictionary, getLocale } from '@/dictionaries'
@@ -11,6 +11,8 @@ export default async function HomePage() {
   const features = [
     { icon: Boxes, key: 'stock' as const },
     { icon: Receipt, key: 'ventes' as const },
+    { icon: Wallet, key: 'tresorerie' as const },
+    { icon: HandCoins, key: 'creances' as const },
     { icon: Store, key: 'magasins' as const },
   ]
 

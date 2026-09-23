@@ -123,6 +123,14 @@
         "title": "Ventes & achats",
         "desc": "Facturez vos clients, gérez vos fournisseurs, suivez créances et dettes."
       },
+      "tresorerie": {
+        "title": "Trésorerie et finances",
+        "desc": "Suivez vos encaissements, décaissements et la santé financière de votre entreprise en un coup d'œil."
+      },
+      "creances": {
+        "title": "Créances et dettes",
+        "desc": "Gardez la trace de ce que vous devez et de ce qu'on vous doit, client par client, fournisseur par fournisseur."
+      },
       "magasins": {
         "title": "Plusieurs magasins",
         "desc": "Une vue consolidée de toute votre entreprise, et le détail par magasin."

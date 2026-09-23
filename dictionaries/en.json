@@ -123,6 +123,14 @@
         "title": "Sales & purchases",
         "desc": "Invoice your customers, manage your suppliers, track receivables and debts."
       },
+      "tresorerie": {
+        "title": "Cash flow & finances",
+        "desc": "Track your income, expenses, and your company's financial health at a glance."
+      },
+      "creances": {
+        "title": "Receivables & payables",
+        "desc": "Keep track of what you owe and what you're owed, customer by customer, supplier by supplier."
+      },
       "magasins": {
         "title": "Multiple stores",
         "desc": "A consolidated view of your whole company, plus the detail per store."
