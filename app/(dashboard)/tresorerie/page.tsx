@@ -22,7 +22,7 @@ export default async function TresoreriePage({
 }: {
   searchParams?: Promise<{ compte?: string; from?: string; to?: string }>
 }) {
-  const context = await requireGerant()
+  const context = await requireGerant('/tresorerie', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.tresorerie

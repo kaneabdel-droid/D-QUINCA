@@ -11,7 +11,7 @@ export default async function DettesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant()
+  const context = await requireGerant('/dettes', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.dettes

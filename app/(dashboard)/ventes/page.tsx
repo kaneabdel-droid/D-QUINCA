@@ -14,7 +14,7 @@ export default async function VentesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant()
+  const context = await requireGerant('/ventes', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.ventes

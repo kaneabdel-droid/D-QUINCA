@@ -12,7 +12,7 @@ export default async function ChargesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant()
+  const context = await requireGerant('/charges', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.charges
