@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { requireGerantOuTresorier, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerCreanceButton from './ReglerCreanceButton'
@@ -11,7 +11,7 @@ export default async function CreancesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant('/creances', 'lire')
+  const context = await requireGerantOuTresorier('/creances', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.creances

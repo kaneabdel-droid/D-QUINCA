@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { requireGerantOuTresorier, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import ReglerDetteButton from './ReglerDetteButton'
@@ -11,7 +11,7 @@ export default async function DettesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant('/dettes', 'lire')
+  const context = await requireGerantOuTresorier('/dettes', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.dettes

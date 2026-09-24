@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { requireGerantOuTresorier, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateChargeButton from './CreateChargeButton'
@@ -12,7 +12,7 @@ export default async function ChargesPage({
 }: {
   searchParams?: Promise<{ from?: string; to?: string }>
 }) {
-  const context = await requireGerant('/charges', 'lire')
+  const context = await requireGerantOuTresorier('/charges', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.charges

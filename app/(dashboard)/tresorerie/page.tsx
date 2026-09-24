@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import FitAmount from './FitAmount'
 import { createClient } from '@/utils/supabase/server'
-import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
+import { requireGerantOuTresorier, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
 import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
@@ -22,7 +22,7 @@ export default async function TresoreriePage({
 }: {
   searchParams?: Promise<{ compte?: string; from?: string; to?: string }>
 }) {
-  const context = await requireGerant('/tresorerie', 'lire')
+  const context = await requireGerantOuTresorier('/tresorerie', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.tresorerie
