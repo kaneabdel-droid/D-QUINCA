@@ -141,6 +141,7 @@
   },
   "home": {
     "title": "D-QUINCA",
+    "login": "Connexion",
     "tagline": "La solution de gestion pour quincailleries. Suivez vos stocks, vos ventes et vos magasins en toute simplicité.",
     "backToDemba": "Retour à l'accueil",
     "subscribe": "S'abonner",
