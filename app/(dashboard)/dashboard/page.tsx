@@ -52,10 +52,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
     const ventesAujourdhui = Number((rentabilite as { ca: number } | null)?.ca ?? 0)
 
-    const { data: articles } = await supabase.from('articles').select('id, seuil_alerte').eq('actif', true)
+    const { data: articles } = await supabase.from('articles').select('id, seuil_alerte, categories(est_service)').eq('actif', true)
     const { data: stocks } = await supabase.from('stocks').select('article_id, quantite').eq('magasin_id', context.magasinId)
     const stockParArticle = new Map((stocks ?? []).map((s) => [s.article_id, s.quantite]))
-    const nbStockBas = (articles ?? []).filter((a) => (stockParArticle.get(a.id) ?? 0) <= (a.seuil_alerte ?? 0)).length
+    // Une catégorie de services n'a pas de stock : ses articles, toujours à 0,
+    // ne doivent pas gonfler artificiellement le compteur de stock bas.
+    const nbStockBas = (articles ?? [])
+      .filter((a) => !(Array.isArray(a.categories) ? a.categories[0] : a.categories)?.est_service)
+      .filter((a) => (stockParArticle.get(a.id) ?? 0) <= (a.seuil_alerte ?? 0)).length
 
     const { data: creances } = await supabase
       .from('creances')

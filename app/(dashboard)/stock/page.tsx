@@ -10,11 +10,20 @@ export default async function StockPage() {
   const dict = await getDictionary(await getLocale())
   const t = dict.stock
 
-  const { data: articles } = await supabase
+  const { data: articlesBruts } = await supabase
     .from('articles')
-    .select('id, designation, unite, seuil_alerte')
+    .select('id, designation, unite, seuil_alerte, categories(est_service)')
     .eq('actif', true)
     .order('designation')
+
+  // Une catégorie de services (categories.est_service) n'a pas de stock
+  // physique : ses articles sont exclus de l'état des stocks, des alertes de
+  // stock bas et de l'ajustement manuel — ils ne génèrent d'ailleurs plus
+  // aucun mouvement de stock (cf. migration 26_categorie_service_sans_stock).
+  const articles = (articlesBruts ?? []).filter((a) => {
+    const cat = Array.isArray(a.categories) ? a.categories[0] : a.categories
+    return !cat?.est_service
+  })
 
   const { data: stocks } = await supabase
     .from('stocks')
@@ -29,7 +38,10 @@ export default async function StockPage() {
     .limit(20)
 
   const stockParArticle = new Map((stocks ?? []).map((s) => [s.article_id, s.quantite]))
-  const articleParId = new Map((articles ?? []).map((a) => [a.id, a]))
+  // Volontairement non filtré : un mouvement historique peut référencer un
+  // article devenu entretemps un service (recatégorisation) et doit quand même
+  // afficher son nom dans le journal des mouvements récents ci-dessous.
+  const articleParId = new Map((articlesBruts ?? []).map((a) => [a.id, a]))
 
   const libellesMouvement: Record<string, string> = t.movementLabels
 

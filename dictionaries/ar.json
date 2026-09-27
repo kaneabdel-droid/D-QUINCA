@@ -290,7 +290,12 @@
     "editTitle": "تعديل الفئة",
     "confirmDelete": "حذف الفئة \"{nom}\"؟",
     "updated": "تم تعديل الفئة",
-    "deleted": "تم حذف الفئة"
+    "deleted": "تم حذف الفئة",
+    "colType": "النوع",
+    "typeArticles": "مواد (مخزون)",
+    "typeService": "خدمات (بدون مخزون)",
+    "estServiceLabel": "فئة خدمات (بدون تتبع للمخزون)",
+    "estServiceHint": "لن يُنشأ أي حركة مخزون لمواد هذه الفئة، لا عند البيع ولا عند الشراء."
   },
   "articles": {
     "title": "المواد",

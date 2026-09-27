@@ -49,6 +49,13 @@ export default function CreateCategorieButton({ dict }: { dict: Dictionary }) {
                     <label className="block text-sm font-medium text-foreground">{c.description}</label>
                     <textarea name="description" rows={2} className="mt-1 block w-full rounded-md bg-background border border-surface-border text-foreground px-3 py-2" />
                   </div>
+                  <div className="flex items-start gap-2">
+                    <input id="est_service" name="est_service" type="checkbox" className="mt-1 h-4 w-4 rounded border-surface-border" />
+                    <label htmlFor="est_service" className="text-sm text-foreground">
+                      {t.estServiceLabel}
+                      <span className="block text-xs font-normal text-foreground-muted">{t.estServiceHint}</span>
+                    </label>
+                  </div>
                 </form>
               </div>
               <div className="bg-background/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">

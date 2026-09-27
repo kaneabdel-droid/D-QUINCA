@@ -290,7 +290,12 @@
     "editTitle": "Modifier la catégorie",
     "confirmDelete": "Supprimer la catégorie \"{nom}\" ?",
     "updated": "Catégorie modifiée",
-    "deleted": "Catégorie supprimée"
+    "deleted": "Catégorie supprimée",
+    "colType": "Type",
+    "typeArticles": "Articles (stock)",
+    "typeService": "Services (sans stock)",
+    "estServiceLabel": "Catégorie de services (sans suivi de stock)",
+    "estServiceHint": "Aucun mouvement de stock ne sera créé pour les articles de cette catégorie, à la vente comme à l’achat."
   },
   "articles": {
     "title": "Articles",

@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import type { Dictionary } from '@/dictionaries'
 import { updateCategorie, deleteCategorie } from './actions'
 
-type Categorie = { id: string; nom: string; description: string | null }
+type Categorie = { id: string; nom: string; description: string | null; est_service: boolean }
 
 export default function CategorieRowActions({ categorie, dict }: { categorie: Categorie; dict: Dictionary }) {
   const t = dict.categories
@@ -14,6 +14,7 @@ export default function CategorieRowActions({ categorie, dict }: { categorie: Ca
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [nom, setNom] = useState(categorie.nom)
   const [description, setDescription] = useState(categorie.description ?? '')
+  const [estService, setEstService] = useState(categorie.est_service)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,7 +22,7 @@ export default function CategorieRowActions({ categorie, dict }: { categorie: Ca
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const res = await updateCategorie(categorie.id, nom, description)
+    const res = await updateCategorie(categorie.id, nom, description, estService)
     setLoading(false)
     if (res?.error) setError(res.error)
     else {
@@ -65,6 +66,19 @@ export default function CategorieRowActions({ categorie, dict }: { categorie: Ca
                   <div>
                     <label className="block text-sm font-medium text-foreground">{c.description}</label>
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 block w-full rounded-md bg-background border border-surface-border text-foreground px-3 py-2" />
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <input
+                      id={`edit-est-service-${categorie.id}`}
+                      type="checkbox"
+                      checked={estService}
+                      onChange={(e) => setEstService(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-surface-border"
+                    />
+                    <label htmlFor={`edit-est-service-${categorie.id}`} className="text-sm text-foreground">
+                      {t.estServiceLabel}
+                      <span className="block text-xs font-normal text-foreground-muted">{t.estServiceHint}</span>
+                    </label>
                   </div>
                 </form>
               </div>

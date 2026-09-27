@@ -12,12 +12,14 @@ export async function addCategorie(formData: FormData): Promise<ActionResult> {
 
   const nom = (formData.get('nom') as string)?.trim()
   const description = (formData.get('description') as string)?.trim() || null
+  const estService = formData.get('est_service') === 'on'
   if (!nom) return { error: 'Le nom est requis' }
 
   const { error } = await supabase.from('categories').insert({
     entreprise_id: context.entrepriseId,
     nom,
     description,
+    est_service: estService,
   })
   if (error) return { error: error.message }
 
@@ -25,7 +27,7 @@ export async function addCategorie(formData: FormData): Promise<ActionResult> {
   return { success: true }
 }
 
-export async function updateCategorie(id: string, nom: string, description: string): Promise<ActionResult> {
+export async function updateCategorie(id: string, nom: string, description: string, estService: boolean): Promise<ActionResult> {
   await requireGerant('/categories', 'modifier')
   const supabase = await createClient()
 
@@ -33,7 +35,7 @@ export async function updateCategorie(id: string, nom: string, description: stri
 
   const { error } = await supabase
     .from('categories')
-    .update({ nom: nom.trim(), description: description.trim() || null })
+    .update({ nom: nom.trim(), description: description.trim() || null, est_service: estService })
     .eq('id', id)
   if (error) return { error: error.message }
 

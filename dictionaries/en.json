@@ -290,7 +290,12 @@
     "editTitle": "Edit category",
     "confirmDelete": "Delete category \"{nom}\"?",
     "updated": "Category updated",
-    "deleted": "Category deleted"
+    "deleted": "Category deleted",
+    "colType": "Type",
+    "typeArticles": "Items (stock)",
+    "typeService": "Services (no stock)",
+    "estServiceLabel": "Services category (no stock tracking)",
+    "estServiceHint": "No stock movement will be created for items in this category, whether sold or purchased."
   },
   "articles": {
     "title": "Items",

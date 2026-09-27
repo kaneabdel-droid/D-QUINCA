@@ -13,7 +13,7 @@ export default async function CategoriesPage() {
 
   const { data: categories } = await supabase
     .from('categories')
-    .select('id, nom, description')
+    .select('id, nom, description, est_service')
     .order('nom')
 
   return (
@@ -34,6 +34,7 @@ export default async function CategoriesPage() {
             <tr>
               <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{c.name}</th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{c.description}</th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colType}</th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
                 <span className="sr-only">{c.actions}</span>
               </th>
@@ -44,6 +45,13 @@ export default async function CategoriesPage() {
               <tr key={categorie.id} className="hover:bg-background/50 transition-colors">
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-foreground sm:pl-6">{categorie.nom}</td>
                 <td className="px-3 py-4 text-sm text-foreground-muted">{categorie.description || '-'}</td>
+                <td className="px-3 py-4 text-sm">
+                  {categorie.est_service ? (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">{t.typeService}</span>
+                  ) : (
+                    <span className="text-xs text-foreground-muted">{t.typeArticles}</span>
+                  )}
+                </td>
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                   <CategorieRowActions categorie={categorie} dict={dict} />
                 </td>
@@ -51,7 +59,7 @@ export default async function CategoriesPage() {
             ))}
             {(categories ?? []).length === 0 && (
               <tr>
-                <td colSpan={3} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
+                <td colSpan={4} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
               </tr>
             )}
           </tbody>
