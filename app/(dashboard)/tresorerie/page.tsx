@@ -7,6 +7,7 @@ import { getDictionary, getLocale } from '@/dictionaries'
 import CreateCompteButton from './CreateCompteButton'
 import AddEcritureButton from './AddEcritureButton'
 import EcritureRowActions from './EcritureRowActions'
+import WebhookCompteButton from './WebhookCompteButton'
 import PeriodeFilter from '@/components/PeriodeFilter'
 import ImprimerJournalButton from '@/components/ImprimerJournalButton'
 
@@ -49,6 +50,21 @@ export default async function TresoreriePage({
     .select('id, nom, type_compte, solde_initial')
     .eq('magasin_id', context.magasinId)
     .order('nom')
+
+  // Requête à part, dont le résultat brut (cle_webhook) n'est jamais réutilisé
+  // tel quel : on n'en tire ici qu'un booléen avant de le passer au client,
+  // pour ne jamais sérialiser le secret dans la page.
+  const { data: configsMobileMoneyBrutes } = await supabase
+    .from('comptes_tresorerie')
+    .select('id, fournisseur_electronique, identifiant_marchand, cle_webhook')
+    .eq('magasin_id', context.magasinId)
+    .eq('type_compte', 'mobile_money')
+  const configMobileMoneyParCompte = new Map(
+    (configsMobileMoneyBrutes ?? []).map((cfg) => [
+      cfg.id,
+      { fournisseur: cfg.fournisseur_electronique, identifiantMarchand: cfg.identifiant_marchand, aCleWebhook: !!cfg.cle_webhook },
+    ])
+  )
 
   let mouvementsQuery = supabase
     .from('journal_tresorerie')
@@ -194,9 +210,18 @@ export default async function TresoreriePage({
             <Link
               key={compte.id}
               href={qs({ compte: estSelectionne ? undefined : compte.id })}
-              className={`block min-w-0 rounded-lg bg-surface px-3 py-2 shadow-sm border transition-colors ${estSelectionne ? 'border-primary ring-2 ring-primary/30' : 'border-surface-border hover:border-primary/50'}`}
+              className={`relative block min-w-0 rounded-lg bg-surface px-3 py-2 shadow-sm border transition-colors ${estSelectionne ? 'border-primary ring-2 ring-primary/30' : 'border-surface-border hover:border-primary/50'}`}
             >
-              <p className="text-xs font-semibold leading-tight text-foreground [overflow-wrap:anywhere]">{compte.nom}</p>
+              {compte.type_compte === 'mobile_money' && (
+                <WebhookCompteButton
+                  compteId={compte.id}
+                  fournisseur={configMobileMoneyParCompte.get(compte.id)?.fournisseur ?? null}
+                  identifiantMarchand={configMobileMoneyParCompte.get(compte.id)?.identifiantMarchand ?? null}
+                  aCleWebhook={configMobileMoneyParCompte.get(compte.id)?.aCleWebhook ?? false}
+                  dict={dict}
+                />
+              )}
+              <p className="text-xs font-semibold leading-tight text-foreground [overflow-wrap:anywhere] pr-4">{compte.nom}</p>
               <p className="text-[10px] capitalize leading-tight text-foreground-muted">{compte.type_compte.replace('_', ' ')}</p>
               <FitAmount className="mt-1 font-bold leading-tight text-foreground">
                 {(compteFiltreId && !estSelectionne ? 0 : (soldeParCompte.get(compte.id) ?? 0)).toLocaleString('fr-FR')}
