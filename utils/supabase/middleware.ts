@@ -60,10 +60,10 @@ export async function updateSession(request: NextRequest) {
     // planter la requête ni bloquer le repli local — on retente une fois (voir
     // utils/supabase/retry.ts) avant de traiter ça comme "pas de session partagée"
     // plutôt que de laisser l'exception remonter.
-    const sharedAdminUser = await withRetry(() =>
+    const sharedAdminUser: any = await withRetry(() =>
       createAdminIdentityMiddlewareClient(request, supabaseResponse)
         .auth.getUser()
-        .then(({ data }) => data.user)
+        .then(({ data }: any) => data.user)
     ).catch(() => null)
 
     if (isAdminEmail(sharedAdminUser?.email) || isAdminEmail(user?.email)) {
