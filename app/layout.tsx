@@ -14,9 +14,12 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
+
 export const metadata: Metadata = {
   title: "D-QUINCA - Gestion de Quincailleries",
   description: "SaaS de gestion de quincailleries en Afrique",
+  manifest: "/manifest.json",
 };
 
 export default async function RootLayout({
@@ -30,6 +33,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
       <body className={`min-h-full flex flex-col`}>
+        <RegisterServiceWorker />
         {children}
         <Toaster position="top-right" richColors />
       </body>
