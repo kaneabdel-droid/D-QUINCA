@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Boxes, HandCoins, Receipt, Store, Wall
 import LanguageSelector from '@/components/LanguageSelector'
 import RevealGroup from '@/components/RevealGroup'
 import { getDictionary, getLocale } from '@/dictionaries'
+import OfflineLandingBanner from '@/components/offline/OfflineLandingBanner'
 
 export default async function HomePage() {
   const locale = await getLocale()
@@ -18,6 +19,9 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Bandeau Hors-Ligne automatique */}
+      <OfflineLandingBanner appName="D-QUINCA" dashboardUrl="/dashboard" loginUrl="/login" />
+
       {/* Navbar */}
       <header className="border-b border-surface-border bg-surface/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">

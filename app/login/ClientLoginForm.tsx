@@ -55,6 +55,7 @@ export default function ClientLoginForm({ dict }: { dict: any }) {
       startTransition(async () => {
         const offRes = await verifyOfflineCredentials(cleanIdentifier, password)
         if (offRes.success && offRes.session) {
+          document.cookie = 'demba_offline_active=1; path=/; max-age=2592000; SameSite=Lax'
           setSuccessNotice('Connexion locale validée ! Accès à votre quincaillerie hors-ligne...')
           setTimeout(() => {
             window.location.href = '/dashboard'
@@ -84,6 +85,7 @@ export default function ClientLoginForm({ dict }: { dict: any }) {
           ) {
             const offRes = await verifyOfflineCredentials(cleanIdentifier, password)
             if (offRes.success) {
+              document.cookie = 'demba_offline_active=1; path=/; max-age=2592000; SameSite=Lax'
               setSuccessNotice('Réseau instable : connexion locale hors-ligne activée !')
               setTimeout(() => {
                 window.location.href = '/dashboard'
@@ -104,12 +106,27 @@ export default function ClientLoginForm({ dict }: { dict: any }) {
             }
           }
 
+          document.cookie = 'demba_offline_active=1; path=/; max-age=2592000; SameSite=Lax'
+
+          if ('caches' in window) {
+            try {
+              const cache = await caches.open('demba-offline-dquinca-v3')
+              const dashRes = await fetch('/dashboard')
+              if (dashRes && dashRes.ok) {
+                await cache.put('/dashboard', dashRes)
+              }
+            } catch (cacheErr) {
+              console.warn('Erreur pré-mise en cache dashboard shell:', cacheErr)
+            }
+          }
+
           setSuccessNotice('Connexion réussie ! Redirection...')
           window.location.href = res.redirectUrl || '/dashboard'
         }
       } catch (networkError: any) {
         const offRes = await verifyOfflineCredentials(cleanIdentifier, password)
         if (offRes.success) {
+          document.cookie = 'demba_offline_active=1; path=/; max-age=2592000; SameSite=Lax'
           setSuccessNotice('Connexion hors-ligne de secours validée !')
           setTimeout(() => {
             window.location.href = '/dashboard'
