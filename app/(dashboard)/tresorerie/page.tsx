@@ -140,18 +140,23 @@ export default async function TresoreriePage({
   // ces requêtes de résolution manuelles pour retrouver le tiers (client ou
   // fournisseur) de chaque écriture liée.
   const idsParType = { vente: new Set<string>(), achat: new Set<string>(), creance: new Set<string>(), dette: new Set<string>() }
+  const virementRefIds = new Set<string>()
   for (const m of mouvements ?? []) {
     if (m.reference_id && m.reference_type && m.reference_type in idsParType) {
       idsParType[m.reference_type as keyof typeof idsParType].add(m.reference_id)
+    } else if (m.categorie === 'virement' && m.reference_id && !m.reference_type) {
+      virementRefIds.add(m.reference_id)
     }
   }
 
-  const [{ data: ventesData }, { data: achatsData }, { data: creancesData }, { data: dettesData }] = await Promise.all([
+  const [{ data: ventesData }, { data: achatsData }, { data: creancesData }, { data: dettesData }, { data: virementsLiesData }] = await Promise.all([
     idsParType.vente.size ? supabase.from('ventes').select('id, client_id').in('id', [...idsParType.vente]) : Promise.resolve({ data: [] as { id: string; client_id: string | null }[] }),
     idsParType.achat.size ? supabase.from('achats').select('id, fournisseur_id').in('id', [...idsParType.achat]) : Promise.resolve({ data: [] as { id: string; fournisseur_id: string | null }[] }),
     idsParType.creance.size ? supabase.from('creances').select('id, client_id').in('id', [...idsParType.creance]) : Promise.resolve({ data: [] as { id: string; client_id: string | null }[] }),
     idsParType.dette.size ? supabase.from('dettes').select('id, fournisseur_id').in('id', [...idsParType.dette]) : Promise.resolve({ data: [] as { id: string; fournisseur_id: string | null }[] }),
+    virementRefIds.size ? supabase.from('journal_tresorerie').select('id, compte_tresorerie_id').in('id', [...virementRefIds]) : Promise.resolve({ data: [] as { id: string; compte_tresorerie_id: string }[] }),
   ])
+  const compteParEcritureVirementId = new Map((virementsLiesData ?? []).map((v) => [v.id, v.compte_tresorerie_id]))
 
   const clientIdParVenteId = new Map((ventesData ?? []).map((v) => [v.id, v.client_id]))
   const fournisseurIdParAchatId = new Map((achatsData ?? []).map((a) => [a.id, a.fournisseur_id]))
@@ -169,7 +174,11 @@ export default async function TresoreriePage({
   const clientNomParId = new Map((clientsData ?? []).map((cl) => [cl.id, cl.nom]))
   const fournisseurNomParId = new Map((fournisseursData ?? []).map((f) => [f.id, f.nom]))
 
-  function tiersPour(m: { reference_id: string | null; reference_type: string | null }): string {
+  function tiersPour(m: { categorie?: string | null; reference_id: string | null; reference_type: string | null }): string {
+    if (m.categorie === 'virement' && m.reference_id && !m.reference_type) {
+      const autreCompteId = compteParEcritureVirementId.get(m.reference_id)
+      return (autreCompteId && compteParId.get(autreCompteId)?.nom) || '-'
+    }
     if (!m.reference_id || !m.reference_type) return '-'
     if (m.reference_type === 'vente') {
       const clientId = clientIdParVenteId.get(m.reference_id)
@@ -312,7 +321,12 @@ export default async function TresoreriePage({
                   {m.reference_type ? (
                     <span className="text-xs text-foreground-muted">{t.origines[m.reference_type as keyof typeof t.origines] ?? t.linkedNotice}</span>
                   ) : (
-                    <EcritureRowActions ecriture={m} comptes={comptes ?? []} dict={dict} />
+                    <EcritureRowActions
+                      ecriture={m}
+                      comptes={comptes ?? []}
+                      compteContrepartieId={m.reference_id ? compteParEcritureVirementId.get(m.reference_id) ?? null : null}
+                      dict={dict}
+                    />
                   )}
                 </td>
               </tr>
