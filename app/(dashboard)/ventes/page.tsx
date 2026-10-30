@@ -1,33 +1,33 @@
 import { createClient } from '@/utils/supabase/server'
 import { requireGerant, getEntrepriseHeader } from '@/lib/auth/getCurrentUserContext'
-import { formatMontantPdf } from '@/lib/currency'
 import { getDictionary, getLocale } from '@/dictionaries'
 import CreateVenteButton from './CreateVenteButton'
-import ReceiptPdfButton from './ReceiptPdfButton'
-import TicketCaisseButton from './TicketCaisseButton'
-import AnnulerVenteButton from './AnnulerVenteButton'
-import PeriodeFilter from '@/components/PeriodeFilter'
-import ImprimerJournalButton from '@/components/ImprimerJournalButton'
+import VentesClientView from './VentesClientView'
 
 export default async function VentesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ from?: string; to?: string }>
+  searchParams?: Promise<{ from?: string; to?: string; tab?: string }>
 }) {
   const context = await requireGerant('/ventes', 'lire')
   const supabase = await createClient()
   const dict = await getDictionary(await getLocale())
   const t = dict.ventes
   const ti = dict.impression
-  const c = dict.common
-  const { from, to } = (await searchParams) ?? {}
+  const { from, to, tab } = (await searchParams) ?? {}
   const entreprise = await getEntrepriseHeader(context.entrepriseId)
 
   const { data: articles } = await supabase
     .from('articles')
-    .select('id, designation, unite, prix_vente')
+    .select('id, designation, unite, prix_vente, categorie_id')
     .eq('actif', true)
     .order('designation')
+
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, nom')
+    .eq('entreprise_id', context.entrepriseId)
+    .order('nom')
 
   const { data: clients } = await supabase
     .from('clients')
@@ -37,32 +37,44 @@ export default async function VentesPage({
 
   let ventesQuery = supabase
     .from('ventes')
-    .select('id, numero, date_vente, mode_paiement, montant_total, montant_paye, statut, clients(nom)')
+    .select(`
+      id,
+      numero,
+      date_vente,
+      mode_paiement,
+      montant_total,
+      montant_paye,
+      statut,
+      clients(nom),
+      lignes_vente(
+        id,
+        quantite,
+        prix_unitaire,
+        montant_ligne,
+        article_id,
+        articles(
+          id,
+          designation,
+          unite,
+          reference,
+          categorie_id,
+          categories(id, nom)
+        )
+      )
+    `)
     .eq('magasin_id', context.magasinId)
+
   if (from) ventesQuery = ventesQuery.gte('date_vente', from)
   if (to) ventesQuery = ventesQuery.lte('date_vente', `${to}T23:59:59`)
+
   const { data: ventes } = await ventesQuery
     .order('date_vente', { ascending: false })
-    .limit(50)
+    .limit(from || to ? 500 : 100)
 
-  const badgeStatut: Record<string, string> = {
-    validee: 'bg-success/10 text-success',
-    brouillon: 'bg-warning/10 text-warning',
-    annulee: 'bg-danger/10 text-danger',
-  }
-
-  type VenteRow = {
-    id: string
-    numero: string | null
-    date_vente: string | null
-    mode_paiement: string | null
-    montant_total: number
-    montant_paye: number
-    statut: string
-    clients: { nom: string } | { nom: string }[] | null
-  }
-  const nomClient = (c: VenteRow['clients']) => (Array.isArray(c) ? c[0]?.nom : c?.nom)
-  const periodeLabel = from || to ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}` : ti.periodeToutes
+  const periodeLabel =
+    from || to
+      ? `${ti.periode} : ${from ? new Date(from).toLocaleDateString('fr-FR') : '…'} ${ti.au} ${to ? new Date(to).toLocaleDateString('fr-FR') : '…'}`
+      : ti.periodeToutes
 
   return (
     <div>
@@ -76,93 +88,20 @@ export default async function VentesPage({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
-        <PeriodeFilter from={from} to={to} dict={dict} />
-        <ImprimerJournalButton
-          dict={dict}
-          entreprise={entreprise}
-          magasinNom={context.magasinNom ?? ''}
-          titre={t.title}
-          periodeLabel={periodeLabel}
-          colonnes={[
-            { header: t.colDate },
-            { header: t.colClient },
-            { header: t.colPaiement },
-            { header: t.colTotal, align: 'right' },
-            { header: t.colPaye, align: 'right' },
-            { header: t.colStatut },
-          ]}
-          lignes={((ventes ?? []) as VenteRow[]).map((v) => [
-            v.date_vente ? new Date(v.date_vente).toLocaleString('fr-FR') : '-',
-            nomClient(v.clients) || t.walkInClient,
-            v.mode_paiement ?? '-',
-            formatMontantPdf(v.montant_total, context.entrepriseDevise),
-            formatMontantPdf(v.montant_paye, context.entrepriseDevise),
-            v.statut,
-          ])}
-          nomFichier="journal-ventes"
-        />
-      </div>
-
-      <div className="mt-4 overflow-hidden overflow-x-auto shadow ring-1 ring-surface-border rounded-lg bg-surface">
-        <table className="min-w-full divide-y divide-surface-border">
-          <thead className="bg-background/50">
-            <tr>
-              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">{t.colDate}</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colClient}</th>
-              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">{t.colPaiement}</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colTotal}</th>
-              <th scope="col" className="px-3 py-3.5 text-right text-sm font-semibold text-foreground">{t.colPaye}</th>
-              <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-foreground">{t.colStatut}</th>
-              <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span className="sr-only">{c.actions}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-surface-border bg-surface">
-            {((ventes ?? []) as VenteRow[]).map((vente) => (
-              <tr key={vente.id} className="hover:bg-background/50 transition-colors">
-                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-foreground-muted sm:pl-6">
-                  {vente.date_vente ? new Date(vente.date_vente).toLocaleString('fr-FR') : '-'}
-                </td>
-                <td className="px-3 py-4 text-sm text-foreground">{nomClient(vente.clients) || t.walkInClient}</td>
-                <td className="px-3 py-4 text-sm text-foreground-muted capitalize">{vente.mode_paiement}</td>
-                <td className="px-3 py-4 text-sm text-right text-foreground">{Number(vente.montant_total).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-4 text-sm text-right text-foreground-muted">{Number(vente.montant_paye).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-4 text-sm text-center">
-                  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${badgeStatut[vente.statut] ?? ''}`}>
-                    {vente.statut}
-                  </span>
-                </td>
-                <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <div className="flex items-center justify-end gap-1">
-                    <ReceiptPdfButton
-                      vente={vente}
-                      entrepriseNom={context.entrepriseNom}
-                      magasinNom={context.magasinNom ?? ''}
-                      clientNom={nomClient(vente.clients) ?? null}
-                      title={t.downloadReceipt}
-                    />
-                    <TicketCaisseButton
-                      vente={vente}
-                      entrepriseNom={context.entrepriseNom}
-                      magasinNom={context.magasinNom ?? ''}
-                      clientNom={nomClient(vente.clients) ?? null}
-                      dict={dict}
-                    />
-                    {vente.statut === 'validee' && <AnnulerVenteButton venteId={vente.id} dict={dict} />}
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {(ventes ?? []).length === 0 && (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-sm text-foreground-muted">{t.empty}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <VentesClientView
+        ventes={(ventes ?? []) as any}
+        articles={articles ?? []}
+        categories={categories ?? []}
+        entreprise={entreprise}
+        entrepriseNom={context.entrepriseNom}
+        magasinNom={context.magasinNom ?? ''}
+        entrepriseDevise={context.entrepriseDevise || 'FCFA'}
+        initialFrom={from}
+        initialTo={to}
+        initialTab={tab}
+        dict={dict}
+        periodeLabel={periodeLabel}
+      />
     </div>
   )
 }
