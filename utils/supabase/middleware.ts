@@ -122,6 +122,7 @@ export async function updateSession(request: NextRequest) {
     !user &&
     pathname !== '/' &&
     !pathname.startsWith('/login') &&
+    !pathname.startsWith('/signup') &&
     !pathname.startsWith('/forgot-password') &&
     !pathname.startsWith('/update-password') &&
     !pathname.startsWith('/auth') &&
