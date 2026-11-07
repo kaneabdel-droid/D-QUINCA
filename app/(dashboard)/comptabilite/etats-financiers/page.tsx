@@ -57,7 +57,32 @@ export default async function EtatsFinanciersSyscohadaPage({
     }))
   }
 
-  const etats = genererEtatsFinanciersSyscohada(toutesLignes, courant, exercices)
+  // Charger la fiche entreprise pour l'en-tête officiel de la liasse
+  const { data: entrepriseFiche } = await supabase
+    .from('entreprises')
+    .select('nom, adresse, telephone, email, identification, devise')
+    .eq('id', context.entrepriseId)
+    .maybeSingle()
+
+  const nomEnt = entrepriseFiche?.nom || context.entrepriseNom || 'SUNU QUINCAILLERIE'
+  const sigleCalcule = nomEnt
+    .split(' ')
+    .filter(Boolean)
+    .map((w: string) => w[0])
+    .join('')
+    .slice(0, 8)
+    .toUpperCase()
+
+  const infosEntreprise = {
+    denomination: nomEnt,
+    sigle: sigleCalcule || 'SQD',
+    adresse: entrepriseFiche?.adresse || 'Avenue Lamine Guèye, Dakar, Sénégal',
+    telephone: entrepriseFiche?.telephone || '+221 33 821 45 78',
+    email: entrepriseFiche?.email || 'contact@sunu-quincaillerie.sn',
+    nineaNif: entrepriseFiche?.identification || 'SN-00987654-2K',
+  }
+
+  const etats = genererEtatsFinanciersSyscohada(toutesLignes, courant, exercices, infosEntreprise)
 
   return (
     <>
@@ -89,9 +114,9 @@ export default async function EtatsFinanciersSyscohadaPage({
 
       <EtatsFinanciersClient
         etats={etats}
-        devise={context.entrepriseDevise || 'FCFA'}
+        devise={entrepriseFiche?.devise || context.entrepriseDevise || 'FCFA'}
         lang="fr"
-        organisationNom={context.entrepriseNom}
+        organisationNom={nomEnt}
       />
     </>
   )

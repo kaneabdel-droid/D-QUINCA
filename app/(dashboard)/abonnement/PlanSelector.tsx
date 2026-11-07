@@ -72,13 +72,12 @@ export default function PlanSelector({
               key={code}
               type="button"
               onClick={() => setPalier(code)}
-              className={`text-left rounded-xl border p-4 transition-colors relative flex flex-col justify-between ${
-                selectionne
+              className={`text-left rounded-xl border p-4 transition-colors relative flex flex-col justify-between ${selectionne
                   ? isPremiumPlus
                     ? 'border-amber-500 bg-amber-500/5 ring-1 ring-amber-500'
                     : 'border-primary bg-primary/5 ring-1 ring-primary'
                   : 'border-surface-border bg-background hover:border-primary/50'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">

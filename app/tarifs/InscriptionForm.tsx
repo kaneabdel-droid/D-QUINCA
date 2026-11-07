@@ -19,7 +19,7 @@ function paysTries(locale: string) {
   let noms: Intl.DisplayNames | null = null
   try {
     noms = new Intl.DisplayNames([locale], { type: 'region' })
-  } catch {}
+  } catch { }
   return PAYS.map((p) => ({ code: p.code, nom: noms?.of(p.code) ?? p.nom })).sort((a, b) => a.nom.localeCompare(b.nom, locale))
 }
 
@@ -99,13 +99,12 @@ export default function InscriptionForm({ t, locale }: { t: Dict; locale: string
               key={code}
               type="button"
               onClick={() => setPalier(code)}
-              className={`text-left rounded-2xl border p-5 transition-all flex flex-col justify-between ${
-                selectionne
+              className={`text-left rounded-2xl border p-5 transition-all flex flex-col justify-between ${selectionne
                   ? isPremiumPlus
                     ? 'border-amber-500 bg-amber-500/5 shadow-md ring-1 ring-amber-500'
                     : 'border-primary bg-primary/5 shadow-md ring-1 ring-primary'
                   : 'border-surface-border bg-surface hover:border-primary/50'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -161,9 +160,8 @@ export default function InscriptionForm({ t, locale }: { t: Dict; locale: string
                 key={d.mois}
                 type="button"
                 onClick={() => setDureeMois(d.mois)}
-                className={`flex-1 rounded-md border px-3 py-2 text-sm ${
-                  dureeMois === d.mois ? 'border-primary bg-primary text-white' : 'border-surface-border bg-background text-foreground hover:border-primary/50'
-                }`}
+                className={`flex-1 rounded-md border px-3 py-2 text-sm ${dureeMois === d.mois ? 'border-primary bg-primary text-white' : 'border-surface-border bg-background text-foreground hover:border-primary/50'
+                  }`}
               >
                 {d.label}
                 {d.reduction > 0 && <span className="block text-xs opacity-80">-{Math.round(d.reduction * 100)}%</span>}
@@ -254,7 +252,7 @@ export default function InscriptionForm({ t, locale }: { t: Dict; locale: string
           />
         </div>
 
-        
+
         {!enDollars && (
           <div className="mt-4">
             <label className="block text-sm font-medium text-foreground mb-3">Moyen de paiement</label>

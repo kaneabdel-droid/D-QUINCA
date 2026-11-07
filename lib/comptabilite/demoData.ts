@@ -42,8 +42,9 @@ export const DEMO_PLAN_COMPTABLE = [
   { compte: '443', libelle: 'État, TVA facturée sur ventes (18%)', classe: 4, type: 'passif', actif: true },
   { compte: '445', libelle: 'État, TVA récupérable sur achats (18%)', classe: 4, type: 'actif', actif: true },
   { compte: '521', libelle: 'Banque CBAO Sénégal', classe: 5, type: 'tresorerie', actif: true },
-  { compte: '531', libelle: 'Caisse principale quincaillerie', classe: 5, type: 'tresorerie', actif: true },
-  { compte: '571', libelle: 'Mobile Money (Wave / Orange Money)', classe: 5, type: 'tresorerie', actif: true },
+  { compte: '531', libelle: 'Chèques, bons et effets à encaisser', classe: 5, type: 'tresorerie', actif: true },
+  { compte: '551', libelle: 'Mobile Money (Wave / Orange Money)', classe: 5, type: 'tresorerie', actif: true },
+  { compte: '571', libelle: 'Caisse principale quincaillerie (comptoir)', classe: 5, type: 'tresorerie', actif: true },
   { compte: '601', libelle: 'Achats de quincaillerie et matériaux', classe: 6, type: 'charge', actif: true },
   { compte: '6031', libelle: 'Variation des stocks de quincaillerie', classe: 6, type: 'charge', actif: true },
   { compte: '611', libelle: 'Transports sur ventes et livraisons chantiers', classe: 6, type: 'charge', actif: true },
@@ -73,7 +74,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
       { id: 'l-01-3', compte: '244', libelle: 'Matériel info, caisses et outillage démo', debit: 3000000, credit: 0 },
       { id: 'l-01-4', compte: '311', libelle: 'Stock initial quincaillerie au 01/01', debit: 5500000, credit: 0 },
       { id: 'l-01-5', compte: '521', libelle: 'Solde initial Banque CBAO Sénégal', debit: 6000000, credit: 0 },
-      { id: 'l-01-6', compte: '531', libelle: 'Solde initial Caisse centrale', debit: 1500000, credit: 0 },
+      { id: 'l-01-6', compte: '571', libelle: 'Solde initial Caisse centrale', debit: 1500000, credit: 0 },
       { id: 'l-01-7', compte: '101', libelle: 'Capital social souscrit et libéré', debit: 0, credit: 35000000 },
       { id: 'l-01-8', compte: '162', libelle: 'Emprunt bancaire investissement CBAO', debit: 0, credit: 15000000 },
     ],
@@ -183,7 +184,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     validee: true,
     created_at: '2026-01-27T16:30:00Z',
     lignes_ecritures_comptables: [
-      { id: 'l-08-1', compte: '531', libelle: 'Encaissement espèces caisse centrale', debit: 2360000, credit: 0 },
+      { id: 'l-08-1', compte: '571', libelle: 'Encaissement espèces caisse centrale', debit: 2360000, credit: 0 },
       { id: 'l-08-2', compte: '701', libelle: 'Ventes outillage et plomberie HT', debit: 0, credit: 2000000 },
       { id: 'l-08-3', compte: '443', libelle: 'TVA facturée sur ventes (18%)', debit: 0, credit: 360000 },
     ],
@@ -215,7 +216,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     validee: true,
     created_at: '2026-02-05T15:00:00Z',
     lignes_ecritures_comptables: [
-      { id: 'l-10-1', compte: '571', libelle: 'Encaissements Mobile Money Wave', debit: 1416000, credit: 0 },
+      { id: 'l-10-1', compte: '551', libelle: 'Encaissements Mobile Money Wave', debit: 1416000, credit: 0 },
       { id: 'l-10-2', compte: '701', libelle: 'Ventes quincaillerie détail HT', debit: 0, credit: 1200000 },
       { id: 'l-10-3', compte: '443', libelle: 'TVA facturée sur ventes (18%)', debit: 0, credit: 216000 },
     ],
@@ -246,7 +247,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     validee: true,
     created_at: '2026-02-15T14:15:00Z',
     lignes_ecritures_comptables: [
-      { id: 'l-12-1', compte: '531', libelle: 'Encaissement caisse espèces', debit: 4500000, credit: 0 },
+      { id: 'l-12-1', compte: '571', libelle: 'Encaissement caisse espèces', debit: 4500000, credit: 0 },
       { id: 'l-12-2', compte: '411', libelle: 'Acompte créance Chantiers Corniche', debit: 0, credit: 4500000 },
     ],
   },
@@ -277,7 +278,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     created_at: '2026-02-28T17:30:00Z',
     lignes_ecritures_comptables: [
       { id: 'l-14-1', compte: '422', libelle: 'Paiement des salaires du mois', debit: 2100000, credit: 0 },
-      { id: 'l-14-2', compte: '531', libelle: 'Décaissement caisse centrale espèces', debit: 0, credit: 2100000 },
+      { id: 'l-14-2', compte: '571', libelle: 'Décaissement caisse centrale espèces', debit: 0, credit: 2100000 },
     ],
   },
   {
@@ -337,7 +338,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     created_at: '2026-03-15T15:30:00Z',
     lignes_ecritures_comptables: [
       { id: 'l-18-1', compte: '611', libelle: 'Transport et déchargement BTP', debit: 550000, credit: 0 },
-      { id: 'l-18-2', compte: '531', libelle: 'Règlement caisse espèces', debit: 0, credit: 550000 },
+      { id: 'l-18-2', compte: '571', libelle: 'Règlement caisse espèces', debit: 0, credit: 550000 },
     ],
   },
   {
@@ -352,7 +353,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     created_at: '2026-03-20T16:00:00Z',
     lignes_ecritures_comptables: [
       { id: 'l-19-1', compte: '624', libelle: 'Gasoil et révision camion benne', debit: 450000, credit: 0 },
-      { id: 'l-19-2', compte: '531', libelle: 'Règlement caisse espèces', debit: 0, credit: 450000 },
+      { id: 'l-19-2', compte: '571', libelle: 'Règlement caisse espèces', debit: 0, credit: 450000 },
     ],
   },
   {
@@ -367,7 +368,7 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     created_at: '2026-03-25T14:00:00Z',
     lignes_ecritures_comptables: [
       { id: 'l-20-1', compte: '628', libelle: 'Abonnements 4G et téléphonie', debit: 180000, credit: 0 },
-      { id: 'l-20-2', compte: '571', libelle: 'Paiement Wave Mobile Money', debit: 0, credit: 180000 },
+      { id: 'l-20-2', compte: '551', libelle: 'Paiement Wave Mobile Money', debit: 0, credit: 180000 },
     ],
   },
   {
@@ -398,6 +399,21 @@ export const DEMO_ECRITURES_QUINCA: DemoEcriture[] = [
     lignes_ecritures_comptables: [
       { id: 'l-22-1', compte: '311', libelle: 'Stock final quincaillerie (Augmentation)', debit: 1800000, credit: 0 },
       { id: 'l-22-2', compte: '6031', libelle: 'Variation des stocks de marchandises', debit: 0, credit: 1800000 },
+    ],
+  },
+  {
+    id: 'demo-ecr-23',
+    exercice_id: 'exo-2026',
+    journal: 'banque',
+    date_ecriture: '2026-03-28',
+    numero_piece: 'CHQ-2026-001',
+    libelle: 'Chèque n° 554210 reçu et remis à l’encaissement — Chantier Corniche',
+    source_module: 'reglements',
+    validee: true,
+    created_at: '2026-03-28T11:00:00Z',
+    lignes_ecritures_comptables: [
+      { id: 'l-23-1', compte: '531', libelle: 'Chèques et effets remis à l’encaissement', debit: 1200000, credit: 0 },
+      { id: 'l-23-2', compte: '411', libelle: 'Règlement client par chèque certifié', debit: 0, credit: 1200000 },
     ],
   },
 ]
