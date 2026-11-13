@@ -15,7 +15,9 @@ import {
   Tag,
   ArrowUpDown,
   ShoppingBag,
+  Smartphone,
 } from 'lucide-react'
+import { ModalEncaissementDirect } from '@/components/ModalEncaissementDirect'
 import type { Dictionary } from '@/dictionaries'
 import ReceiptPdfButton from './ReceiptPdfButton'
 import TicketCaisseButton from './TicketCaisseButton'
@@ -98,6 +100,7 @@ export default function VentesClientView({
     initialTab === 'articles' ? 'articles' : 'ventes'
   )
   const [selectedVente, setSelectedVente] = useState<VenteItem | null>(null)
+  const [venteAEncaisser, setVenteAEncaisser] = useState<VenteItem | null>(null)
 
   // Filtres de l'onglet 2 (Ventes par article)
   const [filterDateFrom, setFilterDateFrom] = useState(initialFrom || '')
@@ -377,6 +380,14 @@ export default function VentesClientView({
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setVenteAEncaisser(vente)}
+                            className="p-1.5 rounded-lg border border-surface-border hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 transition"
+                            title="Encaissement Direct sur Terminal Quincaillerie (Wave / OM / TPE 0% commission)"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                          </button>
                           <ReceiptPdfButton
                             vente={vente}
                             entrepriseNom={entrepriseNom}
@@ -640,6 +651,26 @@ export default function VentesClientView({
         dict={dict}
         onClose={() => setSelectedVente(null)}
       />
+
+      {/* Modal encaissement direct */}
+      {venteAEncaisser && (
+        <ModalEncaissementDirect
+          montant={
+            Math.max(
+              0,
+              Number(venteAEncaisser.montant_total) - Number(venteAEncaisser.montant_paye)
+            ) || Number(venteAEncaisser.montant_total)
+          }
+          clientNom={nomClient(venteAEncaisser.clients) ?? 'Client Quincaillerie'}
+          commandeRef={`Vente ${venteAEncaisser.numero || venteAEncaisser.id.slice(0, 8)}`}
+          pointDeVente={magasinNom || 'Caisse Comptoir Principal'}
+          onClose={() => setVenteAEncaisser(null)}
+          onSuccess={() => {
+            setVenteAEncaisser(null)
+            router.refresh()
+          }}
+        />
+      )}
     </div>
   )
 }
